@@ -4,7 +4,7 @@
 ## BusinessCardsController
 ## BusinessCardsController is a controller for business cards
 ##
-class BusinessCardsController < ApplicationController
+class Api::V1::BusinessCardsController < ApplicationController
   before_action :authenticate_user!
 
   ## Get paginated list of business cards of the current user
@@ -29,8 +29,8 @@ class BusinessCardsController < ApplicationController
   ## Create a business card for the current user
   def create
     param!(:name, String, required: true)
-    param!(:front_image, String, required: true)
-    param!(:back_image, String, required: true)
+    param!(:front_image, ActionDispatch::Http::UploadedFile, required: true)
+    param!(:back_image, ActionDispatch::Http::UploadedFile, required: true)
 
     business_card = current_user.business_cards.create!(
       name: params[:name]
@@ -38,13 +38,13 @@ class BusinessCardsController < ApplicationController
 
     business_card.front_image.attach(
       key: "#{business_card.id}-front-image",
-      io: StringIO.new(Base64.decode64(params[:front_image])),
+      io: params[:front_image],
       filename: "#{business_card.id}-front-image.jpg"
     )
 
     business_card.back_image.attach(
       key: "#{business_card.id}-back-image",
-      io: StringIO.new(Base64.decode64(params[:back_image])),
+      io: params[:back_image],
       filename: "#{business_card.id}-back-image.jpg"
     )
 

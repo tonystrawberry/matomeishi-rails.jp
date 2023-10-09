@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'jwt'
+require 'net/http'
+
 ##
 ## ApplicationController - The base class for all controllers
 ##
@@ -31,7 +34,7 @@ class ApplicationController < ActionController::API
     if token
       decoded_payload = decode_token(token)
 
-      user = User.find_by(uid: decoded_payload[0]['uid'])
+      user = User.find_by(uid: decoded_payload[0]['user_id'])
     end
 
     # Return the user
@@ -72,9 +75,9 @@ class ApplicationController < ActionController::API
       algorithm: 'RS256',
       verify_iat: true,
       verify_aud: true,
-      aud: 'matomeishi-rails',
+      aud: 'matomeishi',
       verify_iss: true,
-      iss: 'https://securetoken.google.com/matomeishi-rails'
+      iss: 'https://securetoken.google.com/matomeishi'
     )
   end
 

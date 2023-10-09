@@ -10,8 +10,11 @@ class CreateBusinessCards < ActiveRecord::Migration[7.0]
 
       t.string :name, null: false, limit: 100
       t.integer :status, null: false, default: 0
+      t.string :code, null: false, limit: 100
 
       t.timestamps
     end
+
+    add_index :business_cards, :code, unique: true
   end
 end
