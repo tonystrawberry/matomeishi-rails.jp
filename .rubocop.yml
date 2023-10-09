@@ -1,0 +1,16 @@
+AllCops:
+  NewCops: enable
+  Exclude:
+    - "lib/tasks/auto_annotate_models.rake"
+    - "bin/**/*"
+
+Metrics/MethodLength:
+  Max: 30
+
+Metrics/AbcSize:
+  Enabled: false
+
+require:
+  - rubocop-rspec
+  - rubocop-rails
+  - rubocop-factory_bot
