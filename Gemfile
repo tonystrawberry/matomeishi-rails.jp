@@ -45,6 +45,7 @@ gem 'kaminari'
 gem 'rails_param'
 gem 'seed-fu'
 gem 'sidekiq'
+gem 'rack-cors'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
@@ -57,7 +58,6 @@ group :development, :test do
   gem 'simplecov'
   gem 'simplecov-lcov'
   gem 'dotenv-rails', groups: [:development, :test]
-
 end
 
 group :development do

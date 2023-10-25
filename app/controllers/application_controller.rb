@@ -9,6 +9,8 @@ require 'net/http'
 class ApplicationController < ActionController::API
   include ExceptionHandler
 
+  class UndefinedPublicKeyPem < StandardError; end
+
   # Authenticate user before every action
   before_action :authenticate_user!
 
@@ -30,11 +32,17 @@ class ApplicationController < ActionController::API
     # Get the token from the request header
     token = request.headers['x-firebase-token']
 
+    puts "token #{token}"
+
     # If the token is present, decode it and return the user
     if token
       decoded_payload = decode_token(token)
 
-      user = User.find_by(uid: decoded_payload[0]['user_id'])
+      user = User.find_or_initialize_by(uid: decoded_payload[0]['user_id'])
+      user.name = decoded_payload[0]['name']
+      user.email = decoded_payload[0]['email']
+      user.providers.push(decoded_payload[0]['firebase']['sign_in_provider']) if user.providers.exclude?(decoded_payload[0]['firebase']['sign_in_provider'])
+      user.save!
     end
 
     # Return the user
@@ -53,11 +61,15 @@ class ApplicationController < ActionController::API
       algorithm: 'RS256'
     )
 
+    puts "decoded_payload #{decoded_payload}"
+
     # Obtain the public key based on the key ID (kid) from the JWT header
     key_id = decoded_payload[1]['kid']
     public_key_pem = fetch_google_public_keys[key_id]
 
-    raise GRPC::Unauthenticated unless public_key_pem
+    puts "public_key_pem #{public_key_pem}"
+
+    return render json: {}, status: :unauthorized unless public_key_pem
 
     # Create a public key object from the PEM-formatted string
     certificate = OpenSSL::X509::Certificate.new(public_key_pem)

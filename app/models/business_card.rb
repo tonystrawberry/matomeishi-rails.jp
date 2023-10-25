@@ -6,13 +6,21 @@ require "google/cloud/vision"
 #
 # Table name: business_cards
 #
-#  id         :bigint           not null, primary key
-#  code       :string(100)      not null
-#  name       :string(100)      not null
-#  status     :integer          default("analyzing"), not null
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
-#  user_id    :bigint           not null
+#  id           :bigint           not null, primary key
+#  code         :string(100)      not null
+#  company      :string(100)
+#  email        :string(100)
+#  fax          :string(100)
+#  first_name   :string(100)
+#  home_phone   :string(100)
+#  last_name    :string(100)
+#  meeting_date :datetime
+#  mobile_phone :string(100)
+#  notes        :text
+#  status       :integer          default("analyzing"), not null
+#  created_at   :datetime         not null
+#  updated_at   :datetime         not null
+#  user_id      :bigint           not null
 #
 # Indexes
 #
@@ -27,9 +35,19 @@ class BusinessCard < ApplicationRecord
   has_one_attached :front_image
   has_one_attached :back_image
 
-  validates :name, presence: true, length: { maximum: 100 }
+  validates :first_name, length: { maximum: 100 }
+  validates :last_name, length: { maximum: 100 }
+  validates :company, length: { maximum: 100 }
+  validates :email, length: { maximum: 100 }
+  validates :mobile_phone, length: { maximum: 100 }
+  validates :home_phone, length: { maximum: 100 }
+  validates :fax, length: { maximum: 100 }
+  validates :notes, length: { maximum: 1000 }
 
   belongs_to :user
+
+  has_many :business_card_tags, dependent: :destroy
+  has_many :tags, through: :business_card_tags
 
   enum status: {
     analyzing: 0,
