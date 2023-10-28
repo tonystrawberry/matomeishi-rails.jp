@@ -32,4 +32,5 @@
 /.env
 
 /config/credentials/production.key
-/config/vision_credentials.json
+/google-cloud-storage-credentials.json
+/google-cloud-vision-credentials.json
