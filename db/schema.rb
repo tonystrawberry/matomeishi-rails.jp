@@ -92,6 +92,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_24_091235) do
     t.string "providers", default: [], null: false, array: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["uid"], name: "index_users_on_uid", unique: true
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
