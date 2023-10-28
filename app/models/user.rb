@@ -12,6 +12,11 @@
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #
+
+##
+## User model representing a user of the application
+## Authentication is handled by Firebase
+##
 class User < ApplicationRecord
   validates :name, length: { maximum: 100 }
   validates :email, presence: true

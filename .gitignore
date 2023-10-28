@@ -30,3 +30,6 @@
 
 # Ignore .env file containing credentials.
 /.env
+
+/config/credentials/production.key
+/config/vision_credentials.json

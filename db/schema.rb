@@ -56,7 +56,11 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_24_091235) do
     t.string "last_name", limit: 100
     t.string "first_name", limit: 100
     t.string "company", limit: 100
+    t.string "job_title", limit: 100
+    t.string "department", limit: 100
+    t.string "website", limit: 100
     t.string "email", limit: 100
+    t.string "address"
     t.integer "status", default: 0, null: false
     t.string "code", limit: 100, null: false
     t.string "mobile_phone", limit: 100

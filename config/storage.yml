@@ -3,8 +3,21 @@ test:
   root: <%= Rails.root.join("tmp/storage") %>
 
 local:
-  service: Disk
-  root: <%= Rails.root.join("storage") %>
+  service: GCS
+  credentials:
+    type: "service_account"
+    project_id: "matomeishi-401514"
+    private_key_id: "2233683a730b585ffc5d2aa129e07964b4bacd31"
+    private_key: "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCGvvhMNwJebJj1\nfAA1gq9gTTbzLBnRm3l5iES96mq7w0roo+IOZojhPjXk0EvkDeB5XkoBOfRamBkO\nK7KkI9Llf6UBjZiZ+EiuhKnmouyEcL9YL8voRQO2C/kSjKLspVieq0wwhHe/WAWv\npw/YyRSsedABD8REwlf+9WB2Vz/CgZ0u0UHGL/5sgX+5DTTEbq6Y7fJ6EKkTU1wL\nCFCNYj1wL4n7fD7Emfe/YsIVYpLyTZFrtrWxcuKXl5G5KZ95aPdrnhu7TB+dnItQ\nNL9PSaI3iDa6refopSWjRqK+5+memh7MrGW4Ja7lAAzHB210u1RttYnMuHkhvnOa\n/kTNWuM/AgMBAAECggEAMxbYTQl0Z/nT+wvThnZw6VoNciDv/yXsZnSQ39MwOdXf\nopp0nRIqZwCv7Xw+sg7C5DGobJOdPvY5VcKivpJopaSCmzalPAfEAwuA4dY3SDX5\njsW8keoM8KrUesCBC6nbknmPbzvirVWB/mog24jOQmEDSUvBlnJ7a8t8khIdtjDi\n36yvt9Lii1V/uRLmXw8y6s/SwPvH0qyv0Uo8/IVsKUJlrKvPH3KOrXHrTL3t8Uwa\nhxl13dcS9B6CR++DGTiwMMfT06n9GE13whIVuogDVB/qKMCGuSojSb1kCNs8Odlr\nb+0ZgwXbfWg1SNtzq2160WugESubtmifQJ9HdH/jNQKBgQC7e6h4NMMyYC/Z+pJz\nXRVYplxIm7QX/CYi7RU5NndUUGg8qYrsaDlBwkYbPi5INKecxkwtF7ob904P7jA6\nWiS4GKSBoEANmf2Seg1dgdXY4crhYLLxQfGiWGBhp5JlHyRdXR74yG2GLwU11plt\nIc5ggohwj3J1r710CS5CUIl/9QKBgQC3/WSUImeoUnph9q7kOfIHQJY7ZHfO8mGk\nWE6gHKiGaNUc9bMzPq8u6Il2p42bZB1Ppo4ABJ2DOxOQgq3TiTqz++oDZtllKs+Q\nFLzSJj3HA/TUZj0B6jg6sp9a8Utw4ZWBN5WHbtj7gZcFw1gD/ip7Rzf7taPhUC10\n8VN5HgGZ4wKBgFOU6GFWnGL78LlL9ThLGjYgTGnuSFadCd9uNJUCDCbhhebtasrE\nGCqR0rFYgkecedDxsooz1rubAAkoFgYdo9sS2VwUthmaOiqwEP9L36tF1i2t73iQ\n/olyvt0qWKCORqb82c7tg65bjgYXeuTlOl1aNDuCJ/QBegOeCCp2PyZ1AoGBAIli\nRD/4kL43F/seX+k6+2Y+6+7dTjjQ8+frqIoV3CDBFqDRNkYFgHneWQaohiyJzPk0\nvMN2rsbWzf0SFwnlZlgOuuZfXeUU2ngThArHU0nPwnj2/ob3hZUO277kfhiD2Ubr\nYlQGiS8DzOkYvBf/KWlz/HGPaBdN7yNrL5E4vqlRAoGAD4nzp2cOtqjxbTQS8Q0C\niRmK/F2TznGa+KoTkGnvcJe6M9Nn7yB9dTKYiJFqJbwr1fexw+pMM9cWqvKAE4pG\nxzaHPjyMNv9DZKKNo4FHbs9B+ThgYprgwpmBg+IzCLlku3/YTl+cGjGTaQOwMrDy\n3SFxHNNKadITY/NSUafrK5I=\n-----END PRIVATE KEY-----\n"
+    client_email: "google-cloud-storage@matomeishi-401514.iam.gserviceaccount.com"
+    client_id: "110368836982665020054"
+    auth_uri: "https://accounts.google.com/o/oauth2/auth"
+    token_uri: "https://oauth2.googleapis.com/token"
+    auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs"
+    client_x509_cert_url: "https://www.googleapis.com/robot/v1/metadata/x509/google-cloud-storage%40matomeishi-401514.iam.gserviceaccount.com"
+    universe_domain: "googleapis.com"
+  project: "matomeishi-401514"
+  bucket: "matomeishi"
 
 # Use bin/rails credentials:edit to set the AWS secrets (as aws:access_key_id|secret_access_key)
 # amazon:

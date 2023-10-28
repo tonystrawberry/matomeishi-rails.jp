@@ -9,7 +9,20 @@
 #  name                 :string(100)      not null
 #  created_at           :datetime         not null
 #  updated_at           :datetime         not null
+#  user_id              :bigint           not null
 #
+# Indexes
+#
+#  index_tags_on_user_id  (user_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (user_id => users.id)
+#
+
+##
+## Tag model representing a tag that can be assigned to a business card
+##
 class Tag < ApplicationRecord
   # `name` should be lowercase and underscored (numbers accepted)
   validates :name, presence: true, length: { maximum: 100 }, format: { with: /\A[a-z0-9_]+\z/ }

@@ -6,7 +6,7 @@ User.seed do |user|
   user.providers = ["google.com"]
 end
 
-(1..10).each do |i|
+(1..100).each do |i|
   Tag.seed do |tag|
     tag.id = i
     tag.user_id = 1

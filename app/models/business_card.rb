@@ -1,23 +1,28 @@
 # frozen_string_literal: true
 
 require "google/cloud/vision"
+require "openai"
 
 # == Schema Information
 #
 # Table name: business_cards
 #
 #  id           :bigint           not null, primary key
+#  address      :string
 #  code         :string(100)      not null
 #  company      :string(100)
+#  department   :string(100)
 #  email        :string(100)
 #  fax          :string(100)
 #  first_name   :string(100)
 #  home_phone   :string(100)
+#  job_title    :string(100)
 #  last_name    :string(100)
 #  meeting_date :datetime
 #  mobile_phone :string(100)
 #  notes        :text
 #  status       :integer          default("analyzing"), not null
+#  website      :string(100)
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
 #  user_id      :bigint           not null
@@ -31,12 +36,19 @@ require "google/cloud/vision"
 #
 #  fk_rails_...  (user_id => users.id)
 #
+
+##
+## BusinessCard model representing a business card
+##
 class BusinessCard < ApplicationRecord
   has_one_attached :front_image
   has_one_attached :back_image
 
   validates :first_name, length: { maximum: 100 }
   validates :last_name, length: { maximum: 100 }
+  validates :job_title, length: { maximum: 100 }
+  validates :department, length: { maximum: 100 }
+  validates :website, length: { maximum: 100 }
   validates :company, length: { maximum: 100 }
   validates :email, length: { maximum: 100 }
   validates :mobile_phone, length: { maximum: 100 }
@@ -65,14 +77,78 @@ class BusinessCard < ApplicationRecord
   def analyze!
     image_annotator = Google::Cloud::Vision.image_annotator(version: :v1, transport: :grpc)
 
-    response = image_annotator.text_detection(images: ["https://rlv.zcache.jp/svc/view?realview=113335724526596936&design=2f033e99-f36a-41f7-8930-2cabf5f07498&style=3.5x2&media=175ptmatte&cornerstyle=normal&envelopes=none&max_dim=1080&zattribution=none"])
+    response = image_annotator.text_detection(images: [front_image.url, back_image.url])
 
     # Get the raw text from the response
-    response.responses.each do |res|
-      puts res.full_text_annotation.text
+    text_to_analyze = ""
+
+    response.responses.each_with_index do |res, index|
+      text_to_analyze += "Front Business Card Text >> \n #{res.full_text_annotation&.text}\n\n" if index.zero?
+      text_to_analyze += "Back Business Card Text >> \n #{res.full_text_annotation&.text}\n\n" if index == 1
     end
 
+    Rails.logger.info "BusinessCard#analyze! | Text to Analyze:\n #{text_to_analyze}"
 
+    retries = 0
+
+    begin
+      # Pass to ChatGPT API
+      client = OpenAI::Client.new
+
+      response = client.chat(
+        parameters: {
+          model: "gpt-3.5-turbo",
+          messages: [{ role: "user", content: """
+            Return me the JSON containing the entities from the business card text below.
+            The JSON file should contain the following keys:
+            - first_name
+            - last_name
+            - company
+            - job_title
+            - department
+            - website
+            - address
+            - email
+            - mobile_phone
+            - home_phone
+            - fax
+            If the key does not seem to be present, please return null as the value.
+
+            #{text_to_analyze}
+          """ }],
+          temperature: 0.7
+        }
+      )
+
+      openai_json = JSON.parse(response.dig("choices", 0, "message", "content"))
+    rescue JSON::ParserError => e
+      Rails.logger.error "BusinessCard#analyze! | #{e.message}\n #{e.backtrace.join("\n")}"
+
+      # Retry at most 3 times
+      if retries < 3
+        retries += 1
+        retry
+      else
+        self.status = :failed
+        self.save!
+        return
+      end
+    end
+
+    self.status = :analyzed
+    self.first_name = openai_json["first_name"]
+    self.last_name = openai_json["last_name"]
+    self.job_title = openai_json["job_title"]
+    self.department = openai_json["department"]
+    self.website = openai_json["website"]
+    self.address = openai_json["address"]
+    self.company = openai_json["company"]
+    self.email = openai_json["email"]
+    self.mobile_phone = openai_json["mobile_phone"]
+    self.home_phone = openai_json["home_phone"]
+    self.fax = openai_json["fax"]
+
+    self.save!
   end
 
   private

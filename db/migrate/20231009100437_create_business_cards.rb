@@ -11,7 +11,11 @@ class CreateBusinessCards < ActiveRecord::Migration[7.0]
       t.string :last_name, limit: 100
       t.string :first_name, limit: 100
       t.string :company, limit: 100
+      t.string :job_title, limit: 100
+      t.string :department, limit: 100
+      t.string :website, limit: 100
       t.string :email, limit: 100
+      t.string :address
       t.integer :status, null: false, default: 0
       t.string :code, null: false, limit: 100
       t.string :mobile_phone, limit: 100

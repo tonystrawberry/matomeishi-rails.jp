@@ -39,6 +39,7 @@ gem 'bootsnap', require: false
 # gem "rack-cors"
 
 gem 'google-cloud-vision'
+gem 'google-cloud-storage'
 gem 'jsonapi-serializer'
 gem 'jwt'
 gem 'kaminari'
@@ -46,6 +47,8 @@ gem 'rails_param'
 gem 'seed-fu'
 gem 'sidekiq'
 gem 'rack-cors'
+gem 'ruby-openai'
+gem "mysql2"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
@@ -57,7 +60,8 @@ group :development, :test do
   gem 'rspec-rails', '~> 6.0', '>= 6.0.3'
   gem 'simplecov'
   gem 'simplecov-lcov'
-  gem 'dotenv-rails', groups: [:development, :test]
+  gem 'dotenv-rails'
+  gem "planetscale_rails"
 end
 
 group :development do

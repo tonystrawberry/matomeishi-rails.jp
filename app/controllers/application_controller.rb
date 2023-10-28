@@ -32,8 +32,6 @@ class ApplicationController < ActionController::API
     # Get the token from the request header
     token = request.headers['x-firebase-token']
 
-    puts "token #{token}"
-
     # If the token is present, decode it and return the user
     if token
       decoded_payload = decode_token(token)
@@ -61,13 +59,9 @@ class ApplicationController < ActionController::API
       algorithm: 'RS256'
     )
 
-    puts "decoded_payload #{decoded_payload}"
-
     # Obtain the public key based on the key ID (kid) from the JWT header
     key_id = decoded_payload[1]['kid']
     public_key_pem = fetch_google_public_keys[key_id]
-
-    puts "public_key_pem #{public_key_pem}"
 
     return render json: {}, status: :unauthorized unless public_key_pem
 

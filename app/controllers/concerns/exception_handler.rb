@@ -9,6 +9,7 @@ module ExceptionHandler
   included do
     rescue_from StandardError do |e|
       Rails.logger.error("StandardError: #{e}.")
+      Rails.logger.error(e.backtrace.join("\n"))
 
       render json: {
         errors: []
