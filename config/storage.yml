@@ -2,11 +2,17 @@ test:
   service: Disk
   root: <%= Rails.root.join("tmp/storage") %>
 
-local:
+google:
   service: GCS
   credentials: <%= Rails.root.join("google-cloud-storage-credentials.json") %>
   project: "<%= ENV["GOOGLE_CLOUD_STORAGE_PROJECT_ID"] %>"
   bucket: "matomeishi"
+
+local:
+  service: GCS
+  credentials: <%= Rails.root.join("google-cloud-storage-credentials.json") %>
+  project: "<%= ENV["GOOGLE_CLOUD_STORAGE_PROJECT_ID"] %>"
+  bucket: "matomeishi_development"
 
 # Use bin/rails credentials:edit to set the AWS secrets (as aws:access_key_id|secret_access_key)
 # amazon:
