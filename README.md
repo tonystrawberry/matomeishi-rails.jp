@@ -79,6 +79,13 @@ The application is deployed to production with <a href="https://dashboard.render
 
 URL of the API is <a href="https://matomeishi.onrender.com/" target="_blank">**https://matomeishi.onrender.com/**</a>
 
+## 💾 Access to production environment
+
+- **Database** migration
+```
+SUPABASE_DATABASE_HOST="" SUPABASE_DATABASE_PASSWORD="" RAILS_ENV="production" rails db:migrate
+```
+
 ## 📝 Memo to myself
 
 - [] Add tests to the application and use CircleCI to run the tests and provide the test coverage report
@@ -87,4 +94,3 @@ URL of the API is <a href="https://matomeishi.onrender.com/" target="_blank">**h
 - [] Use Bugsnag to monitor the errors
 - [] Use rubocop to check the code style on the CI and on pre-commit
 - [] Protect `main` branch on GitHub and only allow merging pull requests after the CI passes
-- [] Add a health check endpoint to the API
