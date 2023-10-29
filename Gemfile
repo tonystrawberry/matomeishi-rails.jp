@@ -56,24 +56,20 @@ group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem 'debug', platforms: %i[mri mingw x64_mingw]
 
-  gem 'faker'
-
   gem 'dotenv-rails'
   gem 'factory_bot_rails'
-  gem 'rspec-rails', '~> 6.0', '>= 6.0.3'
-  gem 'simplecov'
-  gem 'simplecov-lcov'
-end
-
-group :development do
-  # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
-  # gem "spring"
-  gem 'annotate'
-
+  gem 'faker'
   gem 'rbs_rails', '~> 0.12.0', require: false
+  gem 'rspec-rails', '~> 6.0', '>= 6.0.3'
   gem 'rubocop', require: false
   gem 'rubocop-factory_bot', require: false
   gem 'rubocop-rails', require: false
   gem 'rubocop-rspec', require: false
+  gem 'simplecov'
+  gem 'simplecov-lcov'
   gem 'steep', '~> 1.5', '>= 1.5.2', require: false
+end
+
+group :development do
+  gem 'annotate'
 end
