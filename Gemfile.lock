@@ -76,7 +76,6 @@ GEM
     bootsnap (1.16.0)
       msgpack (~> 1.2)
     builder (3.2.4)
-    colorize (0.8.1)
     concurrent-ruby (1.2.2)
     connection_pool (2.4.1)
     crass (1.0.6)
@@ -180,6 +179,8 @@ GEM
     grpc (1.58.0-x86_64-linux)
       google-protobuf (~> 3.23)
       googleapis-common-protos-types (~> 1.0)
+    health_check (3.1.0)
+      railties (>= 5.0)
     httpclient (2.8.3)
     i18n (1.14.1)
       concurrent-ruby (~> 1.0)
@@ -244,9 +245,6 @@ GEM
       ast (~> 2.4.1)
       racc
     pg (1.5.4)
-    planetscale_rails (0.1.4)
-      colorize (~> 0.8.1)
-      rails (~> 7.0)
     psych (5.1.0)
       stringio
     public_suffix (5.0.3)
@@ -425,12 +423,12 @@ DEPENDENCIES
   faker
   google-cloud-storage
   google-cloud-vision
+  health_check
   jsonapi-serializer
   jwt
   kaminari
   mysql2
   pg (~> 1.1)
-  planetscale_rails
   puma (~> 5.0)
   rack-cors
   rails (~> 7.0.8)

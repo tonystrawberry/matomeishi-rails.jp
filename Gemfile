@@ -49,6 +49,7 @@ gem 'sidekiq'
 gem 'rack-cors'
 gem 'ruby-openai'
 gem "mysql2"
+gem 'health_check'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
@@ -61,7 +62,6 @@ group :development, :test do
   gem 'simplecov'
   gem 'simplecov-lcov'
   gem 'dotenv-rails'
-  gem "planetscale_rails"
 end
 
 group :development do

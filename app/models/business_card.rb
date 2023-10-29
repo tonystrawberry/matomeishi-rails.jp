@@ -7,25 +7,27 @@ require "openai"
 #
 # Table name: business_cards
 #
-#  id           :bigint           not null, primary key
-#  address      :string
-#  code         :string(100)      not null
-#  company      :string(100)
-#  department   :string(100)
-#  email        :string(100)
-#  fax          :string(100)
-#  first_name   :string(100)
-#  home_phone   :string(100)
-#  job_title    :string(100)
-#  last_name    :string(100)
-#  meeting_date :datetime
-#  mobile_phone :string(100)
-#  notes        :text
-#  status       :integer          default("analyzing"), not null
-#  website      :string(100)
-#  created_at   :datetime         not null
-#  updated_at   :datetime         not null
-#  user_id      :bigint           not null
+#  id                  :bigint           not null, primary key
+#  address             :string
+#  code                :string(100)      not null
+#  company             :string(100)
+#  department          :string(100)
+#  email               :string(100)
+#  fax                 :string(100)
+#  first_name          :string(100)
+#  first_name_phonetic :string
+#  home_phone          :string(100)
+#  job_title           :string(100)
+#  last_name           :string(100)
+#  last_name_phonetic  :string
+#  meeting_date        :datetime
+#  mobile_phone        :string(100)
+#  notes               :text
+#  status              :integer          default("analyzing"), not null
+#  website             :string(100)
+#  created_at          :datetime         not null
+#  updated_at          :datetime         not null
+#  user_id             :bigint           not null
 #
 # Indexes
 #
@@ -46,6 +48,8 @@ class BusinessCard < ApplicationRecord
 
   validates :first_name, length: { maximum: 100 }
   validates :last_name, length: { maximum: 100 }
+  validates :first_name_phonetic, length: { maximum: 100 }
+  validates :last_name_phonetic, length: { maximum: 100 }
   validates :job_title, length: { maximum: 100 }
   validates :department, length: { maximum: 100 }
   validates :website, length: { maximum: 100 }
@@ -74,10 +78,10 @@ class BusinessCard < ApplicationRecord
   ## Get the text from the images
   ## Submit the text to the ChatGPT API to get the entities in a JSON format
   ## Save the entities in the database
-  def analyze!
+  def analyze!(language_hints: ["en"])
     image_annotator = Google::Cloud::Vision.image_annotator(version: :v1, transport: :grpc)
 
-    response = image_annotator.text_detection(images: [front_image.url, back_image.url])
+    response = image_annotator.text_detection(images: [front_image.url, back_image.url], image_context: {"language_hints" => language_hints})
 
     # Get the raw text from the response
     text_to_analyze = ""
@@ -103,6 +107,8 @@ class BusinessCard < ApplicationRecord
             The JSON file should contain the following keys:
             - first_name
             - last_name
+            - first_name_phonetic
+            - last_name_phonetic
             - company
             - job_title
             - department
@@ -138,6 +144,8 @@ class BusinessCard < ApplicationRecord
     self.status = :analyzed
     self.first_name = openai_json["first_name"]
     self.last_name = openai_json["last_name"]
+    self.first_name_phonetic = openai_json["first_name_phonetic"]
+    self.last_name_phonetic = openai_json["last_name_phonetic"]
     self.job_title = openai_json["job_title"]
     self.department = openai_json["department"]
     self.website = openai_json["website"]
