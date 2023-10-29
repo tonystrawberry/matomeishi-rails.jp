@@ -45,7 +45,9 @@ class ApplicationController < ActionController::API
       user = User.find_or_initialize_by(uid: decoded_payload[0]['user_id'])
       user.name = decoded_payload[0]['name']
       user.email = decoded_payload[0]['email']
-      user.providers.push(decoded_payload[0]['firebase']['sign_in_provider']) if user.providers.exclude?(decoded_payload[0]['firebase']['sign_in_provider'])
+      if user.providers.exclude?(decoded_payload[0]['firebase']['sign_in_provider'])
+        user.providers.push(decoded_payload[0]['firebase']['sign_in_provider'])
+      end
       user.save!
     end
 

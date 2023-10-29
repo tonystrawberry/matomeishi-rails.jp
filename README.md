@@ -39,11 +39,12 @@ OpenAPI
 
 ## 🛠 Local development
 
-1. Set the necessary environment variables in the `.env.local` file.
+1. Set the necessary environment variables in the `.env` file.
 
 ```
 OPENAI_API_KEY=
 GOOGLE_CLOUD_STORAGE_PROJECT_ID=
+BUGSNAG_API_KEY=
 
 # Only for production environment because we use local database for development
 SUPABASE_DATABASE_HOST=
@@ -85,6 +86,10 @@ URL of the API is <a href="https://matomeishi.onrender.com/" target="_blank">**h
 ```
 SUPABASE_DATABASE_HOST="" SUPABASE_DATABASE_PASSWORD="" RAILS_ENV="production" rails db:migrate
 ```
+
+## ⚠️ Error reporting
+
+- <a href="https://app.bugsnag.com/tonystrawberry/matomeishi-rails-dot-jp/overview" target="_blank">**Bugsnag**</a> is used to monitor the errors in production environment.
 
 ## 📝 Memo to myself
 

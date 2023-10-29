@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require "google/cloud/vision"
-require "openai"
+require 'google/cloud/vision'
+require 'openai'
 
 # == Schema Information
 #
@@ -77,14 +77,15 @@ class BusinessCard < ApplicationRecord
   ## Calls OCR API to analyze the business card (front and back images)
   ## Get the text from the images
   ## Submit the text to the ChatGPT API to get the entities in a JSON format
-  ## Save the entities in the database
-  def analyze!(language_hints: ["en"])
+  ## Save the entities in the database # | TODO: export the logic to a service or implement a OpenAI API client wrapper
+  def analyze!(language_hints: ['en'])
     image_annotator = Google::Cloud::Vision.image_annotator(version: :v1, transport: :grpc)
 
-    response = image_annotator.text_detection(images: [front_image.url, back_image.url], image_context: {"language_hints" => language_hints})
+    response = image_annotator.text_detection(images: [front_image.url, back_image.url],
+                                              image_context: { 'language_hints' => language_hints })
 
     # Get the raw text from the response
-    text_to_analyze = ""
+    text_to_analyze = ''
 
     response.responses.each_with_index do |res, index|
       text_to_analyze += "Front Business Card Text >> \n #{res.full_text_annotation&.text}\n\n" if index.zero?
@@ -101,8 +102,8 @@ class BusinessCard < ApplicationRecord
 
       response = client.chat(
         parameters: {
-          model: "gpt-3.5-turbo",
-          messages: [{ role: "user", content: """
+          model: 'gpt-3.5-turbo',
+          messages: [{ role: 'user', content: "
             Return me the JSON containing the entities from the business card text below.
             The JSON file should contain the following keys:
             - first_name
@@ -121,12 +122,12 @@ class BusinessCard < ApplicationRecord
             If the key does not seem to be present, please return null as the value.
 
             #{text_to_analyze}
-          """ }],
+          " }],
           temperature: 0.7
         }
       )
 
-      openai_json = JSON.parse(response.dig("choices", 0, "message", "content"))
+      openai_json = JSON.parse(response.dig('choices', 0, 'message', 'content'))
     rescue JSON::ParserError => e
       Rails.logger.error "BusinessCard#analyze! | #{e.message}\n #{e.backtrace.join("\n")}"
 
@@ -136,27 +137,27 @@ class BusinessCard < ApplicationRecord
         retry
       else
         self.status = :failed
-        self.save!
+        save!
         return
       end
     end
 
     self.status = :analyzed
-    self.first_name = openai_json["first_name"]
-    self.last_name = openai_json["last_name"]
-    self.first_name_phonetic = openai_json["first_name_phonetic"]
-    self.last_name_phonetic = openai_json["last_name_phonetic"]
-    self.job_title = openai_json["job_title"]
-    self.department = openai_json["department"]
-    self.website = openai_json["website"]
-    self.address = openai_json["address"]
-    self.company = openai_json["company"]
-    self.email = openai_json["email"]
-    self.mobile_phone = openai_json["mobile_phone"]
-    self.home_phone = openai_json["home_phone"]
-    self.fax = openai_json["fax"]
+    self.first_name = openai_json['first_name']
+    self.last_name = openai_json['last_name']
+    self.first_name_phonetic = openai_json['first_name_phonetic']
+    self.last_name_phonetic = openai_json['last_name_phonetic']
+    self.job_title = openai_json['job_title']
+    self.department = openai_json['department']
+    self.website = openai_json['website']
+    self.address = openai_json['address']
+    self.company = openai_json['company']
+    self.email = openai_json['email']
+    self.mobile_phone = openai_json['mobile_phone']
+    self.home_phone = openai_json['home_phone']
+    self.fax = openai_json['fax']
 
-    self.save!
+    save!
   end
 
   private

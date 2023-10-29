@@ -4,6 +4,7 @@
 ## This concern is used to handle exceptions in the application.
 ## It is included in the ApplicationController.
 ##
+
 module ExceptionHandler
   extend ActiveSupport::Concern
   included do

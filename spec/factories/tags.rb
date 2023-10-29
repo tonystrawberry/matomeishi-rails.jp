@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # == Schema Information
 #
 # Table name: tags
@@ -21,6 +23,9 @@
 #
 FactoryBot.define do
   factory :tag do
-    
+    user
+    name { Faker::Name.name }
+    description { Faker::Lorem.paragraph }
+    color { Faker::Color.hex_color }
   end
 end

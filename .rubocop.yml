@@ -3,12 +3,30 @@ AllCops:
   Exclude:
     - "lib/tasks/auto_annotate_models.rake"
     - "bin/**/*"
+    - "db/schema.rb"
+    - "db/migrate/*.rb"
+    - "config/environments/*.rb"
 
 Metrics/MethodLength:
-  Max: 30
+  Enabled: false
+
+Metrics/BlockLength:
+  Enabled: false
 
 Metrics/AbcSize:
   Enabled: false
+
+Metrics/ClassLength:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Metrics/PerceivedComplexity:
+  Max: 10
+
+Metrics/CyclomaticComplexity:
+  Max: 8
 
 require:
   - rubocop-rspec

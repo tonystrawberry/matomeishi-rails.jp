@@ -1,0 +1,28 @@
+repos:
+  - repo: local
+    hooks:
+      - id: rubocop -a
+        name: Run rubocop -a
+        description: This hook runs the rubocop linter.
+        entry: rubocop -a
+        language: system
+        fail_fast: true
+        exclude: .pre-commit-config.yaml
+      - id: rbs_rails
+        name: Run rbs_rails:all
+        description: This hook generates RBS files for Rails.
+        entry: env RAILS_ENV=development bundle exec rake rbs_rails:all
+        language: system
+        fail_fast: true
+      - id: rbs collection install
+        name: Run rbs collection install
+        description: This hook installs RBS files for gems.
+        entry: bundle exec rbs collection install --frozen
+        language: system
+        fail_fast: true
+      - id: steep_check
+        name: Run steep check
+        description: This hook checks types using RBS files.
+        entry: bundle exec steep check
+        language: system
+        fail_fast: true

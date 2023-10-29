@@ -67,7 +67,7 @@ Rails.application.configure do
   config.middleware.insert_before 0, Rack::Cors do
     allow do
       origins 'http://localhost:3001' # Add your frontend's origin here
-      resource '*', headers: :any, methods: [:get, :post, :put, :patch, :delete, :options]
+      resource '*', headers: :any, methods: %i[get post put patch delete options]
     end
   end
 
