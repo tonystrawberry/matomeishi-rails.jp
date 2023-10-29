@@ -87,3 +87,4 @@ URL of the API is <a href="https://matomeishi.onrender.com/" target="_blank">**h
 - [] Use Bugsnag to monitor the errors
 - [] Use rubocop to check the code style on the CI and on pre-commit
 - [] Protect `main` branch on GitHub and only allow merging pull requests after the CI passes
+- [] Add a health check endpoint to the API
