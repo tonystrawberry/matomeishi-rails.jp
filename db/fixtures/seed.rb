@@ -23,6 +23,8 @@ end
     business_card.user_id = 1
     business_card.last_name = Faker::Name.last_name
     business_card.first_name = Faker::Name.first_name
+    business_card.last_name_phonetic = Faker::Name.last_name
+    business_card.first_name_phonetic = Faker::Name.first_name
     business_card.company = Faker::Company.name
     business_card.email = Faker::Internet.email
     business_card.status = BusinessCard.statuses.keys.sample

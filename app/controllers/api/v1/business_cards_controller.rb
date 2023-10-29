@@ -25,7 +25,7 @@ class Api::V1::BusinessCardsController < ApplicationController
     # Should search through all fields of the business card
     if params[:q].present?
       business_cards = business_cards.where(
-        'first_name ILIKE :q OR last_name ILIKE :q OR company ILIKE :q OR email ILIKE :q OR mobile_phone ILIKE :q OR home_phone ILIKE :q OR fax ILIKE :q OR notes ILIKE :q',
+        'first_name ILIKE :q OR last_name ILIKE :q OR first_name_phonetic ILIKE :q OR last_name_phonetic ILIKE :q OR company ILIKE :q OR email ILIKE :q OR mobile_phone ILIKE :q OR home_phone ILIKE :q OR fax ILIKE :q OR notes ILIKE :q',
         q: "%#{params[:q]}%"
       )
     end
@@ -62,6 +62,10 @@ class Api::V1::BusinessCardsController < ApplicationController
   def create
     param!(:front_image, ActionDispatch::Http::UploadedFile, required: true)
     param!(:back_image, ActionDispatch::Http::UploadedFile, required: true)
+    param!(:language_hints, String, default: "[\"en\"]") # Default language hints is English
+
+    language_hints = JSON.parse(params[:language_hints])
+
 
     business_card = current_user.business_cards.new
 
@@ -85,7 +89,7 @@ class Api::V1::BusinessCardsController < ApplicationController
       )
     end
 
-    business_card.analyze!
+    business_card.analyze!(language_hints: language_hints)
     business_card.reload
 
     render json: BusinessCardSerializer.new(business_card).serializable_hash, status: :created
@@ -99,10 +103,12 @@ class Api::V1::BusinessCardsController < ApplicationController
     param!(:department, String)
     param!(:email, String)
     param!(:fax, String)
-    param!(:first_name, String)
+    param!(:first_name, String, required: true)
+    param!(:first_name_phonetic, String)
     param!(:home_phone, String)
     param!(:job_title, String)
     param!(:last_name, String)
+    param!(:last_name_phonetic, String)
     param!(:meeting_date, DateTime)
     param!(:mobile_phone, String)
     param!(:notes, String)
@@ -119,9 +125,11 @@ class Api::V1::BusinessCardsController < ApplicationController
         email: params[:email],
         fax: params[:fax],
         first_name: params[:first_name],
+        first_name_phonetic: params[:first_name_phonetic],
         home_phone: params[:home_phone],
         job_title: params[:job_title],
         last_name: params[:last_name],
+        last_name_phonetic: params[:last_name_phonetic],
         meeting_date: params[:meeting_date],
         mobile_phone: params[:mobile_phone],
         notes: params[:notes],
@@ -167,6 +175,8 @@ class Api::V1::BusinessCardsController < ApplicationController
       'Code',
       'First Name',
       'Last Name',
+      'First Name Phonetic',
+      'Last Name Phonetic',
       'Company',
       'Job Title',
       'Department',
@@ -191,6 +201,8 @@ class Api::V1::BusinessCardsController < ApplicationController
           business_card.code,
           business_card.first_name,
           business_card.last_name,
+          business_card.first_name_phonetic,
+          business_card.last_name_phonetic,
           business_card.company,
           business_card.job_title,
           business_card.department,
