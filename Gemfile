@@ -66,6 +66,7 @@ group :development, :test do
   gem 'rubocop-rails', require: false
   gem 'rubocop-rspec', require: false
   gem 'simplecov'
+  gem 'simplecov_json_formatter', '~> 0.1'
   gem 'simplecov-lcov'
   gem 'steep', '~> 1.5', '>= 1.5.2', require: false
 end

@@ -447,6 +447,7 @@ DEPENDENCIES
   sidekiq
   simplecov
   simplecov-lcov
+  simplecov_json_formatter (~> 0.1)
   steep (~> 1.5, >= 1.5.2)
   tzinfo-data
 

@@ -1,20 +1,50 @@
 name: Ruby
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
 
 jobs:
-  lint:
+  rubocop:
     runs-on: ubuntu-latest
+    name: Rubocop - Ruby ${{ matrix.ruby }}
+    strategy:
+      matrix:
+        ruby:
+          - '2.7.0'
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ".ruby-version"
-      - name: Install gems
-        run: |
-          gem install bundler
-          gem install sorbet
-          bundle install --jobs 4 --retry 3 --path=vendor/bundle
-      - name: Run tests with rubocop
-        run: |
-          bundle exec rubocop --parallel
+    - uses: actions/checkout@v3
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+        bundler-cache: true
+    - name: Run Rubocop (format check)
+      run: bundle exec rubocop --parallel
+  coverage:
+    runs-on: ubuntu-latest
+    name: RSpec - Ruby ${{ matrix.ruby }}
+    strategy:
+      matrix:
+        ruby:
+          - '2.7.0'
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+        bundler-cache: true
+    - name: Run RSpec (test & coverage)
+      uses: paambaati/codeclimate-action@v5.0.0
+      env:
+        CC_TEST_REPORTER_ID: c0d6206ec9a97dc9390ee0d1fd25f7515d96ca14fdf72a409a511c6b738a26c1
+      with:
+        coverageCommand: bundle exec rspec
+        coverageLocations: ${{ github.workspace }}/coverage/coverage.json:simplecov
+        debug: true
