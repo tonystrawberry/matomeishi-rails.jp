@@ -37,8 +37,9 @@ jobs:
       postgres:
         image: postgres:13
         env:
-          POSTGRES_HOST_AUTH_METHOD: trust
           POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: matomeishi_test
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -57,6 +58,13 @@ jobs:
       with:
         ruby-version: ${{ matrix.ruby }}
         bundler-cache: true
+    - name: Set environment variables for RSpec
+      run: |
+        echo '::set-env name=RAILS_ENV::test'
+        echo '::set-env name=DATABASE_URL::postgres://postgres:postgres@localhost:5432/matomeishi_test'
+    - name: Setup database
+      run: |
+        bundle exec rails db:schema:load
     - name: Run RSpec (test & coverage)
       uses: paambaati/codeclimate-action@v5.0.0
       env:
