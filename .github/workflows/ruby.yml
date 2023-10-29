@@ -1,0 +1,89 @@
+name: Ruby
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_USER: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    env:
+      USER: postgres
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ".ruby-version"
+      - name: Setup database
+        run: |
+          bin/rails db:setup RAILS_ENV=test
+      - run: bundle exec rspec
+
+  typecheck:
+    runs-on: ubuntu-latest
+
+    # Necessary for rbs_rails to work
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_USER: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    env:
+      DATABASE_URL: postgres://postgres:@localhost/matomeishi_test
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ".ruby-version"
+          bundler-cache: true
+
+      - name: Set up database for rbs_rails
+        run: |
+          bin/rails db:setup
+
+      - name: Download collection
+        run: |
+          bundle exec rbs collection install --frozen
+
+      - name: Generate type signatures
+        run: |
+          bundle exec rake rbs_rails:all
+
+      - name: Run steep
+        run: |
+          bundle exec steep check
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ".ruby-version"
+      - name: Run rubocop
+        run: |
+          bundle exec rubocop --parallel
