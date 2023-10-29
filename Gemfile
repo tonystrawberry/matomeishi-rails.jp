@@ -50,6 +50,7 @@ gem 'rack-cors'
 gem 'ruby-openai'
 gem "mysql2"
 gem 'health_check'
+gem "bugsnag", "~> 6.26"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

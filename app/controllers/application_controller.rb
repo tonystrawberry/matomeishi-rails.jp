@@ -7,14 +7,20 @@ require 'net/http'
 ## ApplicationController - The base class for all controllers
 ##
 class ApplicationController < ActionController::API
-  include ExceptionHandler
+  before_bugsnag_notify :add_user_info_to_bugsnag
 
-  class UndefinedPublicKeyPem < StandardError; end
+  include ExceptionHandler
 
   # Authenticate user before every action
   before_action :authenticate_user!
 
   private
+
+  ## Add user info to Bugsnag
+  ## This will allow us to see the user info in the Bugsnag dashboard
+  def add_user_info_to_bugsnag(event)
+    event.set_user(current_user.id, current_user.email, current_user.name) if current_user.present?
+  end
 
   ## Authenticate the user with the token
   def authenticate_user!

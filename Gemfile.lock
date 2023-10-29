@@ -75,6 +75,8 @@ GEM
     base64 (0.1.1)
     bootsnap (1.16.0)
       msgpack (~> 1.2)
+    bugsnag (6.26.0)
+      concurrent-ruby (~> 1.0)
     builder (3.2.4)
     concurrent-ruby (1.2.2)
     connection_pool (2.4.1)
@@ -417,6 +419,7 @@ PLATFORMS
 DEPENDENCIES
   annotate
   bootsnap
+  bugsnag (~> 6.26)
   debug
   dotenv-rails
   factory_bot_rails

@@ -16,6 +16,8 @@ class Api::V1::BusinessCardsController < ApplicationController
     param!(:q, String, default: '')
     param!(:tags, Array, default: [])
 
+    sleep(3)
+
     business_cards = current_user.business_cards
 
     if params[:tags].present?

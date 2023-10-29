@@ -11,6 +11,9 @@ module ExceptionHandler
       Rails.logger.error("StandardError: #{e}.")
       Rails.logger.error(e.backtrace.join("\n"))
 
+      # Send the error to Bugsnag
+      Bugsnag.notify(e)
+
       render json: {
         errors: []
       }, status: :internal_server_error
@@ -18,6 +21,7 @@ module ExceptionHandler
 
     rescue_from ActiveRecord::RecordNotFound do |e|
       Rails.logger.warn("ActiveRecord::RecordNotFound: #{e}.")
+
       render json: {
         errors: []
       }, status: :not_found
@@ -25,6 +29,10 @@ module ExceptionHandler
 
     rescue_from ActiveRecord::RecordInvalid do |e|
       Rails.logger.warn("ActiveRecord::RecordInvalid: #{e}.")
+
+      # Send the error to Bugsnag
+      Bugsnag.notify(e)
+
       render json: {
         errors: []
       }, status: :unprocessable_entity
