@@ -35,6 +35,8 @@ OpenAPI
 
 - 💾 The **database** is hosted on <a href="https://supabase.com/dashboard/project/bivrcuxracfevdbpzpln" target="_blank">**Supabase**</a>
 
+- 📁 The **files** (images) are stored on <a href="https://console.cloud.google.com/storage/browser?project=matomeishi-401514&prefix=&forceOnBucketsSortingFiltering=true" target="_blank">**Google Cloud Storage**</a>
+
 ## 🛠 Local development
 
 1. Set the necessary environment variables in the `.env.local` file.
