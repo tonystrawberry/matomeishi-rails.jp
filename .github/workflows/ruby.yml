@@ -50,6 +50,8 @@ jobs:
 
     env:
       USER: postgres
+      RAILS_ENV: test
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/matomeishi_test
 
     steps:
     - uses: actions/checkout@v3
@@ -58,10 +60,6 @@ jobs:
       with:
         ruby-version: ${{ matrix.ruby }}
         bundler-cache: true
-    - name: Set environment variables for RSpec
-      run: |
-        echo '::set-env name=RAILS_ENV::test'
-        echo '::set-env name=DATABASE_URL::postgres://postgres:postgres@localhost:5432/matomeishi_test'
     - name: Setup database
       run: |
         bundle exec rails db:schema:load
