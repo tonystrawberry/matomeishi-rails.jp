@@ -28,6 +28,11 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ".ruby-version"
+      - name: Install gems
+        run: |
+          gem install bundler
+          gem install sorbet
+          bundle install --jobs 4 --retry 3 --path=vendor/bundle
       - name: Setup database
         run: |
           bin/rails db:setup RAILS_ENV=test
@@ -84,6 +89,11 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ".ruby-version"
-      - name: Run rubocop
+      - name: Install gems
+        run: |
+          gem install bundler
+          gem install sorbet
+          bundle install --jobs 4 --retry 3 --path=vendor/bundle
+      - name: Run tests with rubocop
         run: |
           bundle exec rubocop --parallel
