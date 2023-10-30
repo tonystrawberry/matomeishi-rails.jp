@@ -70,7 +70,7 @@ module Api
       ## Create a business card for the current user
       def create
         param!(:front_image, ActionDispatch::Http::UploadedFile, required: true)
-        param!(:back_image, ActionDispatch::Http::UploadedFile, required: true)
+        param!(:back_image, ActionDispatch::Http::UploadedFile)
         param!(:language_hints, String, default: '["en"]') # Default language hints is English
 
         language_hints = JSON.parse(params[:language_hints])
