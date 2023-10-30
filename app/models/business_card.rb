@@ -84,7 +84,7 @@ class BusinessCard < ApplicationRecord
     images = [front_image.url]
     images << back_image.url if back_image.attached?
 
-    response = image_annotator.text_detection(images: [front_image.url, back_image.url],
+    response = image_annotator.text_detection(images: images,
                                               image_context: { 'language_hints' => language_hints })
 
     # Get the raw text from the response
