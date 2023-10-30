@@ -88,13 +88,16 @@ module Api
             identify: false
           )
 
-          business_card.back_image.attach(
-            key: "#{current_user.id}/#{business_card.id}-back-image",
-            io: params[:back_image].tempfile,
-            filename: "#{business_card.id}-back-image.png",
-            content_type: 'image/png',
-            identify: false
-          )
+          # Attach back image if it is present
+          if params[:back_image].present?
+            business_card.back_image.attach(
+              key: "#{current_user.id}/#{business_card.id}-back-image",
+              io: params[:back_image].tempfile,
+              filename: "#{business_card.id}-back-image.png",
+              content_type: 'image/png',
+              identify: false
+            )
+          end
         end
 
         business_card.analyze!(language_hints: language_hints)

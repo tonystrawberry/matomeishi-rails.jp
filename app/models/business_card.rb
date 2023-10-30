@@ -81,6 +81,9 @@ class BusinessCard < ApplicationRecord
   def analyze!(language_hints: ['en'])
     image_annotator = Google::Cloud::Vision.image_annotator(version: :v1, transport: :grpc)
 
+    images = [front_image.url]
+    images << back_image.url if back_image.attached?
+
     response = image_annotator.text_detection(images: [front_image.url, back_image.url],
                                               image_context: { 'language_hints' => language_hints })
 
