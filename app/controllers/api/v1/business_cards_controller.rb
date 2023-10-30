@@ -80,20 +80,13 @@ module Api
         ActiveRecord::Base.transaction do
           business_card.save!
 
-          business_card.front_image.attach(
-            key: "#{current_user.id}/#{business_card.id}-front-image",
-            io: params[:front_image].tempfile,
-            filename: "#{business_card.id}-front-image.png",
-            content_type: 'image/png',
-            identify: false
-          )
+          %w[front back].each do |attachment_type|
+            next if params[:"#{attachment_type}_image"].blank?
 
-          # Attach back image if it is present
-          if params[:back_image].present?
-            business_card.back_image.attach(
-              key: "#{current_user.id}/#{business_card.id}-back-image",
-              io: params[:back_image].tempfile,
-              filename: "#{business_card.id}-back-image.png",
+            business_card.send("#{attachment_type}_image").attach(
+              key: "#{current_user.id}/#{business_card.id}-#{attachment_type}-image",
+              io: params[:"#{attachment_type}_image"].tempfile,
+              filename: "#{business_card.id}-#{attachment_type}-image.png",
               content_type: 'image/png',
               identify: false
             )
