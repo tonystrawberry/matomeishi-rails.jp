@@ -73,3 +73,7 @@ end
 group :development do
   gem 'annotate'
 end
+
+group :test do
+  gem 'shoulda-matchers', '~> 5.0'
+end

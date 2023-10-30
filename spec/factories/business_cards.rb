@@ -37,7 +37,6 @@
 #
 FactoryBot.define do
   factory :business_card do
-    name { Faker::Name.name }
-    status { :analyzing }
+    user
   end
 end
