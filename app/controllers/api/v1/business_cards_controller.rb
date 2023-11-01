@@ -59,8 +59,6 @@ module Api
 
         business_card = current_user.business_cards.find_by!(code: params[:code])
 
-        sleep(1)
-
         options = {}
         options[:include] = %i[tags tags.name tags.color tags.description]
         render json: BusinessCardSerializer.new(business_card, options).serializable_hash, status: :ok

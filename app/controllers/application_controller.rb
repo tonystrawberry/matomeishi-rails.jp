@@ -16,6 +16,7 @@ class ApplicationController < ActionController::API
 
   private
 
+  # :nocov:
   ## Add user info to Bugsnag
   ## This will allow us to see the user info in the Bugsnag dashboard
   def add_user_info_to_bugsnag(event)
@@ -45,9 +46,7 @@ class ApplicationController < ActionController::API
       user = User.find_or_initialize_by(uid: decoded_payload[0]['user_id'])
       user.name = decoded_payload[0]['name']
       user.email = decoded_payload[0]['email']
-      if user.providers.exclude?(decoded_payload[0]['firebase']['sign_in_provider'])
-        user.providers.push(decoded_payload[0]['firebase']['sign_in_provider'])
-      end
+      user.providers.push(decoded_payload[0]['firebase']['sign_in_provider']) if user.providers.exclude?(decoded_payload[0]['firebase']['sign_in_provider'])
       user.save!
     end
 
@@ -102,4 +101,5 @@ class ApplicationController < ActionController::API
     response = Net::HTTP.get(uri)
     JSON.parse(response)
   end
+  # :nocov:
 end

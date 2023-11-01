@@ -17,9 +17,15 @@
 #  index_users_on_email  (email) UNIQUE
 #  index_users_on_uid    (uid) UNIQUE
 #
-class UserSerializer
-  include JSONAPI::Serializer
+RSpec.describe UserSerializer do
+  describe 'attributes' do
+    subject { described_class.new(user).serializable_hash[:data][:attributes] }
 
-  set_type :user
-  attributes :name, :email, :uid, :providers
+    let(:user) { build(:user) }
+
+    it { is_expected.to include(name: user.name) }
+    it { is_expected.to include(email: user.email) }
+    it { is_expected.to include(uid: user.uid) }
+    it { is_expected.to include(providers: user.providers) }
+  end
 end

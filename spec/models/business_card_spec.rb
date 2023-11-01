@@ -195,7 +195,7 @@ RSpec.describe BusinessCard do
       end
 
       context 'when OpenAI API returns an invalid JSON string' do
-        let(:business_card) { create(:business_card) }
+        let(:business_card) { create(:business_card, :with_analyzing_state) }
 
         before do
           # Mock the Google Cloud Vision API response
