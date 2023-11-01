@@ -12,9 +12,6 @@ module ExceptionHandler
       Rails.logger.error("StandardError: #{e}.")
       Rails.logger.error(e.backtrace.join("\n"))
 
-      Rails.logger.debug { "StandardError: #{e}." }
-      Rails.logger.debug e.backtrace.join("\n")
-
       # Send the error to Bugsnag
       Bugsnag.notify(e)
 
