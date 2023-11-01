@@ -27,7 +27,25 @@ Metrics/PerceivedComplexity:
   Max: 10
 
 Metrics/CyclomaticComplexity:
-  Max: 9
+  Max: 10
+
+RSpec/MultipleExpectations:
+  Max: 20
+
+RSpec/ExampleLength:
+  Max: 50
+
+RSpec/NestedGroups:
+  Max: 5
+
+Layout/LineLength:
+  Max: 180
+
+RSpec/AnyInstance:
+  Enabled: false
+
+Style/OpenStructUse:
+  Enabled: false
 
 require:
   - rubocop-rspec

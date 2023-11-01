@@ -17,9 +17,11 @@
 #  index_users_on_email  (email) UNIQUE
 #  index_users_on_uid    (uid) UNIQUE
 #
-class UserSerializer
-  include JSONAPI::Serializer
-
-  set_type :user
-  attributes :name, :email, :uid, :providers
+FactoryBot.define do
+  factory :user do
+    email { Faker::Internet.email }
+    uid { Faker::Internet.uuid }
+    name { Faker::Name.name }
+    providers { %w[google] }
+  end
 end

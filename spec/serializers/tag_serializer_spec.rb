@@ -21,11 +21,18 @@
 #
 #  fk_rails_...  (user_id => users.id)
 #
-FactoryBot.define do
-  factory :tag do
-    user
-    name { Faker::Lorem.word.downcase }
-    description { Faker::Lorem.paragraph }
-    color { Faker::Color.hex_color }
+require 'rails_helper'
+
+RSpec.describe TagSerializer do
+  describe 'attributes' do
+    subject { described_class.new(tag).serializable_hash[:data][:attributes] }
+
+    let(:tag) { build(:tag) }
+
+    it { is_expected.to include(id: tag.id) }
+    it { is_expected.to include(name: tag.name) }
+    it { is_expected.to include(description: tag.description) }
+    it { is_expected.to include(color: tag.color) }
+    it { is_expected.to include(business_cards_count: tag.business_cards_count) }
   end
 end

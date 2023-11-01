@@ -37,7 +37,43 @@
 #
 FactoryBot.define do
   factory :business_card do
-    name { Faker::Name.name }
-    status { :analyzing }
+    user
+
+    code { Faker::Code.unique.asin }
+    first_name { Faker::Name.first_name }
+    last_name { Faker::Name.last_name }
+    first_name_phonetic { Faker::Name.first_name }
+    last_name_phonetic { Faker::Name.last_name }
+    company { Faker::Company.name }
+    department { Faker::Company.profession }
+    job_title { Faker::Company.profession }
+    email { Faker::Internet.email }
+    website { Faker::Internet.url }
+    address { Faker::Address.full_address }
+    home_phone { Faker::PhoneNumber.phone_number }
+    mobile_phone { Faker::PhoneNumber.phone_number }
+    fax { Faker::PhoneNumber.phone_number }
+    notes { Faker::Lorem.paragraph }
+    status { BusinessCard.statuses.keys.sample }
+    meeting_date { Faker::Date.between(from: 2.days.ago, to: Time.zone.today) }
+
+    trait :with_analyzing_state do
+      first_name { nil }
+      last_name { nil }
+      first_name_phonetic { nil }
+      last_name_phonetic { nil }
+      company { nil }
+      department { nil }
+      job_title { nil }
+      email { nil }
+      website { nil }
+      address { nil }
+      home_phone { nil }
+      mobile_phone { nil }
+      fax { nil }
+      notes { nil }
+      status { :analyzing }
+      meeting_date { nil }
+    end
   end
 end
