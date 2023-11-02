@@ -95,8 +95,4 @@ SUPABASE_DATABASE_HOST="" SUPABASE_DATABASE_PASSWORD="" RAILS_ENV="production" r
 
 ## 📝 Memo to myself
 
-- [] Add tests to the application and use CircleCI to run the tests and provide the test coverage report
 - [] Make use of rbs for type checking
-- [] Use CodeClimate to check the code quality
-- [] Use rubocop to check the code style on the CI and on pre-commit
-- [] Protect `main` branch on GitHub and only allow merging pull requests after the CI passes
