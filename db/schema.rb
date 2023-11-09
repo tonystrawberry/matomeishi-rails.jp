@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_10_29_101652) do
+ActiveRecord::Schema[7.0].define(version: 2023_11_09_071056) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -66,7 +66,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_29_101652) do
     t.string "mobile_phone", limit: 100
     t.string "home_phone", limit: 100
     t.string "fax", limit: 100
-    t.datetime "meeting_date"
+    t.date "meeting_date"
     t.text "notes"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

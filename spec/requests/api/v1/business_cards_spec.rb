@@ -20,11 +20,11 @@ RSpec.describe 'Api::V1::BusinessCards' do
   end
 
   describe 'GET /index (def index)' do
-    before do
-      create_list(:business_card, 20, user: user)
-    end
-
     context 'without parameters' do
+      before do
+        create_list(:business_card, 20, user: user)
+      end
+
       it 'returns a paginated list of business cards of the current user' do
         get api_v1_business_cards_path, headers: { 'x-firebase-token' => 'token' }
 
@@ -46,6 +46,10 @@ RSpec.describe 'Api::V1::BusinessCards' do
     end
 
     context 'with q parameter' do
+      before do
+        create_list(:business_card, 20, user: user)
+      end
+
       let!(:business_cards_with_keyword) do
         [
           create(:business_card, user: user, last_name: 'test'),
@@ -115,6 +119,69 @@ RSpec.describe 'Api::V1::BusinessCards' do
         }.to_json)
       end
     end
+
+    context 'with meeting_date_xx parameter' do
+      let!(:business_cards_with_meeting_date) do
+        [
+          create(:business_card, user: user, meeting_date: 1.day.ago),
+          create(:business_card, user: user, meeting_date: 2.days.ago),
+          create(:business_card, user: user, meeting_date: 3.days.ago),
+          create(:business_card, user: user, meeting_date: 4.days.ago),
+          create(:business_card, user: user, meeting_date: 5.days.ago),
+          create(:business_card, user: user, meeting_date: 6.days.ago),
+          create(:business_card, user: user, meeting_date: 7.days.ago),
+          create(:business_card, user: user, meeting_date: 8.days.ago),
+          create(:business_card, user: user, meeting_date: 9.days.ago),
+          create(:business_card, user: user, meeting_date: 10.days.ago)
+        ]
+      end
+
+      context 'with meeting_date_from parameter' do
+        it 'returns a paginated list of business cards of the current user' do
+          get api_v1_business_cards_path,
+              params: { page: 1, meeting_date_from: 5.days.ago.to_date },
+              headers: { 'x-firebase-token' => 'token' }
+
+          expect(response).to have_http_status(:ok)
+
+          business_cards = user.business_cards.where(meeting_date: 5.days.ago.to_date..).order(id: :desc).page(1).per(12)
+          options = {}
+          options[:include] = %i[tags tags.name tags.color tags.description]
+          serialized_business_cards = BusinessCardSerializer.new(business_cards, options).serializable_hash
+
+          expect(response.body).to eq({
+            business_cards: serialized_business_cards,
+            current_page: 1,
+            total_count: business_cards.count,
+            total_pages: 1,
+            is_last_page: true
+          }.to_json)
+        end
+      end
+
+      context 'with meeting_date_to parameter' do
+        it 'returns a paginated list of business cards of the current user' do
+          get api_v1_business_cards_path,
+              params: { page: 1, meeting_date_to: 5.days.ago.to_date },
+              headers: { 'x-firebase-token' => 'token' }
+
+          expect(response).to have_http_status(:ok)
+
+          business_cards = user.business_cards.where(meeting_date: ..5.days.ago.to_date).order(id: :desc).page(1).per(12)
+          options = {}
+          options[:include] = %i[tags tags.name tags.color tags.description]
+          serialized_business_cards = BusinessCardSerializer.new(business_cards, options).serializable_hash
+
+          expect(response.body).to eq({
+            business_cards: serialized_business_cards,
+            current_page: 1,
+            total_count: business_cards.count,
+            total_pages: 1,
+            is_last_page: true
+          }.to_json)
+        end
+      end
+    end
   end
 
   describe 'GET /show (def show)' do
@@ -175,7 +242,7 @@ RSpec.describe 'Api::V1::BusinessCards' do
         job_title: 'test',
         last_name: 'test',
         last_name_phonetic: 'test',
-        meeting_date: DateTime.now,
+        meeting_date: Date.today,
         mobile_phone: 'test',
         notes: 'test',
         tags: tags.map { |tag| { tagId: tag.id, name: tag.name } } + [{ tagId: nil, name: 'custom' }],
@@ -202,7 +269,7 @@ RSpec.describe 'Api::V1::BusinessCards' do
       expect(business_card.job_title).to eq(params[:job_title])
       expect(business_card.last_name).to eq(params[:last_name])
       expect(business_card.last_name_phonetic).to eq(params[:last_name_phonetic])
-      expect(business_card.meeting_date.to_datetime.in_time_zone('Asia/Tokyo')).to be_within(1.second).of(params[:meeting_date].to_datetime.in_time_zone('Asia/Tokyo'))
+      expect(business_card.meeting_date).to eq(params[:meeting_date])
       expect(business_card.mobile_phone).to eq(params[:mobile_phone])
       expect(business_card.notes).to eq(params[:notes])
       expect(business_card.tags.pluck(:name).sort).to eq(params[:tags].pluck(:name).sort)

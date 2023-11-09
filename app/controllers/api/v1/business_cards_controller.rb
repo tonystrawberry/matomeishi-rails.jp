@@ -17,6 +17,8 @@ module Api
         param!(:page, Integer, default: 1)
         param!(:q, String, default: '')
         param!(:tags, Array, default: [])
+        param!(:meeting_date_from, Date)
+        param!(:meeting_date_to, Date)
 
         business_cards = current_user.business_cards
 
@@ -37,6 +39,15 @@ module Api
         notes ILIKE :q',
             q: "%#{params[:q]}%"
           )
+        end
+
+        # Get business cards that have meeting date between meeting_date_from and meeting_date_to
+        if params[:meeting_date_from].present?
+          business_cards = business_cards.where('meeting_date >= ?', params[:meeting_date_from])
+        end
+
+        if params[:meeting_date_to].present?
+          business_cards = business_cards.where('meeting_date <= ?', params[:meeting_date_to])
         end
 
         business_cards = business_cards.distinct.order(id: :desc).page(params[:page]).per(12)

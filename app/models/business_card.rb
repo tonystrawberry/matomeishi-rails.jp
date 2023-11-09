@@ -20,7 +20,7 @@ require 'openai'
 #  job_title           :string(100)
 #  last_name           :string(100)
 #  last_name_phonetic  :string
-#  meeting_date        :datetime
+#  meeting_date        :date
 #  mobile_phone        :string(100)
 #  notes               :text
 #  status              :integer          default("analyzing"), not null
