@@ -121,7 +121,7 @@ RSpec.describe 'Api::V1::BusinessCards' do
     end
 
     context 'with meeting_date_xx parameter' do
-      let!(:business_cards_with_meeting_date) do
+      before do
         [
           create(:business_card, user: user, meeting_date: 1.day.ago),
           create(:business_card, user: user, meeting_date: 2.days.ago),
@@ -242,7 +242,7 @@ RSpec.describe 'Api::V1::BusinessCards' do
         job_title: 'test',
         last_name: 'test',
         last_name_phonetic: 'test',
-        meeting_date: Date.today,
+        meeting_date: Time.zone.today,
         mobile_phone: 'test',
         notes: 'test',
         tags: tags.map { |tag| { tagId: tag.id, name: tag.name } } + [{ tagId: nil, name: 'custom' }],

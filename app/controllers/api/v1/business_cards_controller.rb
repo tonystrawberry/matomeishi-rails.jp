@@ -42,13 +42,9 @@ module Api
         end
 
         # Get business cards that have meeting date between meeting_date_from and meeting_date_to
-        if params[:meeting_date_from].present?
-          business_cards = business_cards.where('meeting_date >= ?', params[:meeting_date_from])
-        end
+        business_cards = business_cards.where('meeting_date >= ?', params[:meeting_date_from]) if params[:meeting_date_from].present?
 
-        if params[:meeting_date_to].present?
-          business_cards = business_cards.where('meeting_date <= ?', params[:meeting_date_to])
-        end
+        business_cards = business_cards.where('meeting_date <= ?', params[:meeting_date_to]) if params[:meeting_date_to].present?
 
         business_cards = business_cards.distinct.order(id: :desc).page(params[:page]).per(12)
 
