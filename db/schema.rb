@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_11_09_071056) do
+ActiveRecord::Schema[7.0].define(version: 2023_12_12_142535) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -87,6 +87,50 @@ ActiveRecord::Schema[7.0].define(version: 2023_11_09_071056) do
     t.index ["user_id"], name: "index_tags_on_user_id"
   end
 
+  create_table "user_billings", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "stripe_customer_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["stripe_customer_id"], name: "index_user_billings_on_stripe_customer_id", unique: true
+    t.index ["user_id"], name: "index_user_billings_on_user_id"
+  end
+
+  create_table "user_invoices", force: :cascade do |t|
+    t.bigint "user_billing_id", null: false
+    t.bigint "user_subscription_id", null: false
+    t.float "total"
+    t.string "stripe_invoice_id"
+    t.datetime "term_from"
+    t.datetime "term_to"
+    t.string "stripe_status"
+    t.string "invoice_pdf"
+    t.datetime "paid_at"
+    t.integer "plan_type"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["stripe_invoice_id"], name: "index_user_invoices_on_stripe_invoice_id", unique: true
+    t.index ["user_billing_id"], name: "index_user_invoices_on_user_billing_id"
+    t.index ["user_subscription_id"], name: "index_user_invoices_on_user_subscription_id"
+  end
+
+  create_table "user_subscriptions", force: :cascade do |t|
+    t.bigint "user_billing_id", null: false
+    t.string "subscription_id"
+    t.datetime "term_from"
+    t.datetime "term_to"
+    t.integer "plan_type"
+    t.string "status"
+    t.float "price"
+    t.boolean "cancel_at_period_end", default: false
+    t.string "payment_intent_status"
+    t.integer "will_downgrade_to"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["subscription_id"], name: "index_user_subscriptions_on_subscription_id", unique: true
+    t.index ["user_billing_id"], name: "index_user_subscriptions_on_user_billing_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "name", limit: 100
     t.string "email", null: false
@@ -104,4 +148,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_11_09_071056) do
   add_foreign_key "business_card_tags", "tags"
   add_foreign_key "business_cards", "users"
   add_foreign_key "tags", "users"
+  add_foreign_key "user_billings", "users"
+  add_foreign_key "user_invoices", "user_billings"
+  add_foreign_key "user_invoices", "user_subscriptions"
+  add_foreign_key "user_subscriptions", "user_billings"
 end

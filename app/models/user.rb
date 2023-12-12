@@ -28,6 +28,24 @@ class User < ApplicationRecord
   validates :uid, presence: true
   validates :providers, presence: true
 
+  has_one :user_billing, dependent: :destroy
+
   has_many :business_cards, dependent: :destroy
   has_many :tags, dependent: :destroy
+
+  after_create :create_stripe_customer
+
+  ## Create a Stripe customer for the user and save the Stripe customer ID
+  # Called on `after_create` callback
+  def create_stripe_customer
+    stripe_customer = Stripe::Customer.create({
+      email: email,
+      name: name
+    })
+
+    user_billing = UserBilling.create!(
+      user: self,
+      stripe_customer_id: stripe_customer.id
+    )
+  end
 end

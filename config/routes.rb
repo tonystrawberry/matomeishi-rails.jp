@@ -23,6 +23,13 @@ Rails.application.routes.draw do
       get '/tags/:id', to: 'tags#show', as: 'tag'
       put '/tags/:id', to: 'tags#update', as: 'update_tag'
       delete '/tags/:id', to: 'tags#destroy', as: 'delete_tag'
+
+      # Routes for /subscriptions/*
+      post '/subscriptions', to: 'subscriptions#create_subscription', as: 'create_subscription'
+      post '/subscriptions/payment_intent', to: 'subscriptions#payment_intent', as: 'payment_intent'
+
+      # Routes for /webhooks/*
+      post '/webhooks/stripe', to: 'webhooks#stripe', as: 'stripe_webhook'
     end
   end
 end

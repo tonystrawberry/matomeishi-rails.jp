@@ -51,6 +51,7 @@ gem 'rails_param'
 gem 'ruby-openai'
 gem 'seed-fu'
 gem 'sidekiq'
+gem 'stripe' # For subscriptions
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
