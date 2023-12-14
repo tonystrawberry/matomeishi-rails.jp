@@ -20,5 +20,7 @@
 class UserBilling < ApplicationRecord
   belongs_to :user
 
+  has_many :user_subscriptions, dependent: :destroy
+
   validates :stripe_customer_id, presence: true
 end

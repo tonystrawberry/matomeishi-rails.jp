@@ -29,21 +29,60 @@ class Api::V1::SubscriptionsController < ApplicationController
     end
   end
 
+  ## GET /api/v1/subscriptions/current
+  ## Get the current subscription for the current user
+  def current
+    user_subscription = current_user.user_billing.user_subscriptions.find_by(status: 'active')
 
-  ## POST /api/v1/subscriptions/payment_intent
-  ## Create a payment intent for the subscription
-  def payment_intent
-    param!(:subscription_id, String)
+    if user_subscription.present?
+      render json: UserSubscriptionSerializer.new(user_subscription).serializable_hash, status: :ok
+    else
+      render json: {}
+    end
+  end
 
-    payment_intent = Stripe::PaymentIntent.create(
-      amount: calculate_order_amount(data['items']),
-      currency: 'jpy',
-      # In the latest version of the API, specifying the `automatic_payment_methods` parameter is optional because Stripe enables its functionality by default.
-      automatic_payment_methods: {
-        enabled: true,
-      },
-    )
+  ## POST /api/v1/subscriptions/cancel
+  ## Cancel the current subscription for the current user
+  def cancel_subscription
+    param!(:subscription_id, String, required: true)
 
-    render json: { client_secret: payment_intent.client_secret }, status: :ok
+    user_subscription = UserSubscription.find_by!(subscription_id: params[:subscription_id])
+    user_subscription.cancel_subscription
+
+    render json: UserSubscriptionSerializer.new(user_subscription).serializable_hash, status: :ok
+  end
+
+  ## POST /api/v1/subscriptions/reactivate
+  ## Reactivate the current subscription for the current user
+  def reactivate_subscription
+    param!(:subscription_id, String, required: true)
+
+    user_subscription = UserSubscription.find_by!(subscription_id: params[:subscription_id])
+    user_subscription.reactivate_subscription
+
+    render json: UserSubscriptionSerializer.new(user_subscription).serializable_hash, status: :ok
+  end
+
+  ## POST /api/v1/subscriptions/change_plan
+  ## Change the plan for the current subscription for the current user
+  def change_plan
+    param!(:plan_type, String, required: true)
+    param!(:subscription_id, String, required: true)
+
+    user_subscription = UserSubscription.find_by!(subscription_id: params[:subscription_id])
+    user_subscription.change_plan(target_plan_type: params[:plan_type])
+
+    render json: UserSubscriptionSerializer.new(user_subscription).serializable_hash, status: :ok
+  end
+
+  ## POST /api/v1/subscriptions/cancel_downgrade
+  ## Cancel the downgrade for the current subscription for the current user
+  def cancel_downgrade
+    param!(:subscription_id, String, required: true)
+
+    user_subscription = UserSubscription.find_by!(subscription_id: params[:subscription_id])
+    user_subscription.cancel_downgrade
+
+    render json: UserSubscriptionSerializer.new(user_subscription).serializable_hash, status: :ok
   end
 end

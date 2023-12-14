@@ -76,6 +76,21 @@ $ rails db:seed_fu # Only if you want to seed the database with sample data
 $ rails s
 ```
 
+## 🧾 Stripe
+
+For testing the payment functionality, you need to set the following environment variables.
+
+```
+STRIPE_PUBLISHABLE_KEY=
+STRIPE_SECRET_KEY=
+```
+
+Use the following command to receive the webhook events from Stripe.
+
+```
+stripe listen --forward-to localhost:3000/api/v1/webhooks/stripe
+```
+
 ## ⚙️ Deployment
 
 The application is deployed to production with <a href="https://dashboard.render.com/web/srv-ckug543amefc7388himg" target="_blank">**Render**</a> every time a pull request is merged into the `main` branch or a commit is pushed to the `main` branch.

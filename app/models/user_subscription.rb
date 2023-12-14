@@ -96,4 +96,106 @@ class UserSubscription < ApplicationRecord
 
     save!
   end
+
+  # Cancel a subscription by canceling
+  # the subscription on Stripe and then by updating the
+  # database record with the returned subscription object from Stripe
+  # Reference: https://stripe.com/docs/api/subscriptions/cancel
+  def cancel_subscription
+    subscription = Stripe::Subscription.retrieve(subscription_id)
+
+    subscription_schedule_id = subscription.schedule
+    Stripe::SubscriptionSchedule.release(subscription_schedule_id) if subscription_schedule_id.present?
+
+    subscription = Stripe::Subscription.update(subscription_id, { cancel_at_period_end: true })
+
+    update_by_subscription_object(subscription)
+  end
+
+  # Reactivate a subscription that was cancelled previously
+  # That will cancel the subscription cancellation
+  # Reference: https://stripe.com/docs/api/subscriptions/update
+  def reactivate_subscription
+    subscription = Stripe::Subscription.update(subscription_id, { cancel_at_period_end: false })
+
+    update_by_subscription_object(subscription)
+  end
+
+  # Change the plan for the current subscription
+  # Reference: https://stripe.com/docs/billing/subscriptions/upgrade-downgrade
+  def change_plan(target_plan_type:)
+    subscription = Stripe::Subscription.retrieve(subscription_id)
+
+    # Get the price IDs for the current plan and the target plan
+    from_price_id = STRIPE_PRICE_IDS[plan_type.to_sym]
+    to_price_id = STRIPE_PRICE_IDS[target_plan_type.to_sym]
+
+    case target_plan_type
+    when 'pro'
+      subscription_schedule_id = subscription.schedule
+
+      # If there is no subscription schedule, create a new one
+      # Otherwise, update the existing one
+      if subscription_schedule_id.nil?
+        subscription_schedule = Stripe::SubscriptionSchedule.create({ from_subscription: subscription_id })
+
+        # Create a new subscription schedule
+        # Plan the downgrade starting from the next billing cycle
+        Stripe::SubscriptionSchedule.update(subscription_schedule.id,
+          {
+            phases: [{
+              items: [{ price: from_price_id }],
+              start_date: term_from.to_i,
+              end_date: term_to.to_i
+            },{
+              items: [{ price: to_price_id }],
+              start_date: term_to.to_i
+            }],
+            end_behavior: 'release'
+          }
+        )
+      else
+        # Update the existing subscription schedule
+        # Plan the downgrade starting from the next billing cycle
+        Stripe::SubscriptionSchedule.update(subscription_schedule_id,
+          {
+            phases: [{
+              items: [{ price: from_price_id }],
+              start_date: term_from.to_i,
+              end_date: term_to.to_i
+            },{
+              items: [{ price: to_price_id }],
+              start_date: term_to.to_i
+            }],
+            end_behavior: 'release'
+          }
+        )
+      end
+
+      update!(will_downgrade_to: target_plan_type)
+    when 'unlimited'
+      # Update the subscription directly
+      # and upgrade the subscription immediately
+      subscription = Stripe::Subscription.update(subscription_id,
+        {
+          cancel_at_period_end: false,
+          proration_behavior: 'create_prorations',
+          items: [{ id: subscription.items.data[0].id, price: to_price_id }]
+        }
+      )
+
+      update_by_subscription_object(subscription)
+    end
+  end
+
+  # Cancel the downgrade for the current subscription
+  # Reference: https://stripe.com/docs/billing/subscriptions/upgrade-downgrade
+  def cancel_downgrade
+    subscription = Stripe::Subscription.retrieve(subscription_id)
+    subscription_schedule_id = subscription.schedule
+
+    Stripe::SubscriptionSchedule.release(subscription_schedule_id) if subscription_schedule_id.present?
+
+    update_by_subscription_object(subscription)
+  end
 end

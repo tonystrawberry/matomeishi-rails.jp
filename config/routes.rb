@@ -25,8 +25,12 @@ Rails.application.routes.draw do
       delete '/tags/:id', to: 'tags#destroy', as: 'delete_tag'
 
       # Routes for /subscriptions/*
+      get '/subscriptions/current', to: 'subscriptions#current', as: 'current'
       post '/subscriptions', to: 'subscriptions#create_subscription', as: 'create_subscription'
-      post '/subscriptions/payment_intent', to: 'subscriptions#payment_intent', as: 'payment_intent'
+      post '/subscriptions/cancel', to: 'subscriptions#cancel_subscription', as: 'cancel_subscription'
+      post '/subscriptions/reactivate', to: 'subscriptions#reactivate_subscription', as: 'reactivate_subscription'
+      post '/subscriptions/change_plan', to: 'subscriptions#change_plan', as: 'change_plan'
+      post '/subscriptions/cancel_downgrade', to: 'subscriptions#cancel_downgrade', as: 'cancel_downgrade'
 
       # Routes for /webhooks/*
       post '/webhooks/stripe', to: 'webhooks#stripe', as: 'stripe_webhook'
