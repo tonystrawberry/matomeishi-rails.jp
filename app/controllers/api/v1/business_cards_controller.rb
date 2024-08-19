@@ -26,6 +26,8 @@ module Api
 
         # Should search through all fields of the business card
         if params[:q].present?
+          sanitized_query = ActiveRecord::Base.sanitize_sql_like(params[:q])
+
           business_cards = business_cards.where(
             'first_name ILIKE :q OR
         last_name ILIKE :q OR
@@ -37,7 +39,7 @@ module Api
         home_phone ILIKE :q OR
         fax ILIKE :q OR
         notes ILIKE :q',
-            q: "%#{params[:q]}%"
+            q: "%#{sanitized_query}%"
           )
         end
 
