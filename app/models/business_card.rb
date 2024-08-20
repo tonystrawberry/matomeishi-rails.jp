@@ -133,8 +133,8 @@ class BusinessCard < ApplicationRecord
       )
     end
 
-    business_cards = business_cards.where('meeting_date >= ?', filter_parameters[:meeting_date_from]) if filter_parameters[:meeting_date_from].present?
-    business_cards = business_cards.where('meeting_date <= ?', filter_parameters[:meeting_date_to]) if filter_parameters[:meeting_date_to].present?
+    business_cards = business_cards.where(meeting_date: (filter_parameters[:meeting_date_from])..) if filter_parameters[:meeting_date_from].present?
+    business_cards = business_cards.where(meeting_date: ..(filter_parameters[:meeting_date_to])) if filter_parameters[:meeting_date_to].present?
 
     business_cards.distinct.order(id: :desc).page(page).per(12)
   end

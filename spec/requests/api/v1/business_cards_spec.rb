@@ -22,7 +22,7 @@ RSpec.describe 'Api::V1::BusinessCards' do
   describe 'GET /index (def index)' do
     context 'without parameters' do
       before do
-        create_list(:business_card, 20, user: user)
+        create_list(:business_card, 13, user: user) # rubocop:disable FactoryBot/ExcessiveCreateList | We are paginating with a page size of 12 so we need at least 13 records
       end
 
       it 'returns a paginated list of business cards of the current user' do
@@ -38,7 +38,7 @@ RSpec.describe 'Api::V1::BusinessCards' do
         expect(response.body).to eq({
           business_cards: business_cards,
           current_page: 1,
-          total_count: 20,
+          total_count: 13,
           total_pages: 2,
           is_last_page: false
         }.to_json)
@@ -46,12 +46,9 @@ RSpec.describe 'Api::V1::BusinessCards' do
     end
 
     context 'with q parameter' do
-      before do
-        create_list(:business_card, 20, user: user)
-      end
-
-      let!(:business_cards_with_keyword) do
+      let!(:business_cards) do
         [
+          create(:business_card, user: user),
           create(:business_card, user: user, last_name: 'matching string'),
           create(:business_card, user: user, first_name: 'matching string'),
           create(:business_card, user: user, first_name_phonetic: 'matching string'),
@@ -64,6 +61,8 @@ RSpec.describe 'Api::V1::BusinessCards' do
           create(:business_card, user: user, notes: 'matching string')
         ]
       end
+
+      let!(:business_cards_with_keyword) { business_cards[1..] }
 
       it 'returns a paginated list of business cards of the current user' do
         get api_v1_business_cards_path, params: { page: 1, q: 'matching string' }, headers: { 'x-firebase-token' => 'token' }
@@ -291,7 +290,7 @@ RSpec.describe 'Api::V1::BusinessCards' do
 
   describe 'GET /export (def export)' do
     before do
-      create_list(:business_card, 20, user: user)
+      create_list(:business_card, 2, user: user)
     end
 
     # TODO: add a mock for `send_data` and check the content of the CSV file

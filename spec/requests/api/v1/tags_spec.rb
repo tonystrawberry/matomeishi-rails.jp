@@ -20,7 +20,7 @@ RSpec.describe 'Api::V1::Tags' do
 
   describe 'GET /index (def index)' do
     before do
-      create_list(:tag, 20, user: user)
+      create_list(:tag, 13, user: user) # rubocop:disable FactoryBot/ExcessiveCreateList | We are paginating with a page size of 12 so we need at least 13 records
     end
 
     it 'returns all tags of the current user' do
