@@ -4,7 +4,6 @@
 ## This concern is used to handle exceptions in the application.
 ## It is included in the ApplicationController.
 ##
-
 module ExceptionHandler
   extend ActiveSupport::Concern
   included do
@@ -12,7 +11,6 @@ module ExceptionHandler
       Rails.logger.error("StandardError: #{e}.")
       Rails.logger.error(e.backtrace.join("\n"))
 
-      # Send the error to Bugsnag
       Bugsnag.notify(e)
 
       render json: {
@@ -31,7 +29,6 @@ module ExceptionHandler
     rescue_from ActiveRecord::RecordInvalid do |e|
       Rails.logger.warn("ActiveRecord::RecordInvalid: #{e}.")
 
-      # Send the error to Bugsnag
       Bugsnag.notify(e)
 
       render json: {

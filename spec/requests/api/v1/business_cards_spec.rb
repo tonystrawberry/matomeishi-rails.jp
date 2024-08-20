@@ -52,21 +52,21 @@ RSpec.describe 'Api::V1::BusinessCards' do
 
       let!(:business_cards_with_keyword) do
         [
-          create(:business_card, user: user, last_name: 'test'),
-          create(:business_card, user: user, first_name: 'test'),
-          create(:business_card, user: user, first_name_phonetic: 'test'),
-          create(:business_card, user: user, last_name_phonetic: 'test'),
-          create(:business_card, user: user, company: 'test'),
-          create(:business_card, user: user, email: 'test'),
-          create(:business_card, user: user, mobile_phone: 'test'),
-          create(:business_card, user: user, home_phone: 'test'),
-          create(:business_card, user: user, fax: 'test'),
-          create(:business_card, user: user, notes: 'test')
+          create(:business_card, user: user, last_name: 'matching string'),
+          create(:business_card, user: user, first_name: 'matching string'),
+          create(:business_card, user: user, first_name_phonetic: 'matching string'),
+          create(:business_card, user: user, last_name_phonetic: 'matching string'),
+          create(:business_card, user: user, company: 'matching string'),
+          create(:business_card, user: user, email: 'matching string'),
+          create(:business_card, user: user, mobile_phone: 'matching string'),
+          create(:business_card, user: user, home_phone: 'matching string'),
+          create(:business_card, user: user, fax: 'matching string'),
+          create(:business_card, user: user, notes: 'matching string')
         ]
       end
 
       it 'returns a paginated list of business cards of the current user' do
-        get api_v1_business_cards_path, params: { page: 1, q: 'test' }, headers: { 'x-firebase-token' => 'token' }
+        get api_v1_business_cards_path, params: { page: 1, q: 'matching string' }, headers: { 'x-firebase-token' => 'token' }
 
         expect(response).to have_http_status(:ok)
 
@@ -231,22 +231,22 @@ RSpec.describe 'Api::V1::BusinessCards' do
 
     let!(:params) do
       {
-        address: 'test',
-        company: 'test',
-        department: 'test',
-        email: 'test',
-        fax: 'test',
-        first_name: 'test',
-        first_name_phonetic: 'test',
-        home_phone: 'test',
-        job_title: 'test',
-        last_name: 'test',
-        last_name_phonetic: 'test',
+        address: Faker::Address.full_address,
+        company: Faker::Company.name,
+        department: Faker::Company.profession,
+        email: Faker::Internet.email,
+        fax: Faker::PhoneNumber.phone_number,
+        first_name: Faker::Name.first_name,
+        first_name_phonetic: Faker::Name.first_name,
+        home_phone: Faker::PhoneNumber.phone_number,
+        job_title: Faker::Company.profession,
+        last_name: Faker::Name.last_name,
+        last_name_phonetic: Faker::Name.last_name,
         meeting_date: Time.zone.today,
-        mobile_phone: 'test',
-        notes: 'test',
+        mobile_phone: Faker::PhoneNumber.phone_number,
+        notes: Faker::Lorem.sentence,
         tags: tags.map { |tag| { tagId: tag.id, name: tag.name } } + [{ tagId: nil, name: 'custom' }],
-        website: 'test'
+        website: Faker::Internet.url
       }
     end
 

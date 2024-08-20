@@ -17,15 +17,16 @@ class ApplicationController < ActionController::API
   private
 
   # :nocov:
-  ## Add user info to Bugsnag
-  ## This will allow us to see the user info in the Bugsnag dashboard
+  # Add user info to Bugsnag
+  # This will allow us to see the user info in the Bugsnag dashboard
+  # @param [Bugsnag::Event] - event
   def add_user_info_to_bugsnag(event)
     event.set_user(current_user.id, current_user.email, current_user.name) if current_user.present?
   end
 
-  ## Authenticate the user with the token
+  # Authenticate the user with the token
+  # The authentication is done inside `current_user` method
   def authenticate_user!
-    # Check if the user is authenticated with the token
     if current_user.present?
       # If the user is authenticated, continue with the request
     else
@@ -34,7 +35,9 @@ class ApplicationController < ActionController::API
     end
   end
 
-  ## Get the current user from the token
+  # Get the current user from the token
+  # The token is passed in the request header as `x-firebase-token`
+  # The token is decoded and verified using Google's public keys
   def current_user
     # Get the token from the request header
     token = request.headers['x-firebase-token']
@@ -50,13 +53,12 @@ class ApplicationController < ActionController::API
       user.save!
     end
 
-    # Return the user
     user
   end
 
-  ## Decode a Firebase Authentication JWT token and verify its signature
-  ## @param [String] - token
-  ## @return [Hash] - payload
+  # Decode a Firebase Authentication JWT token and verify its signature
+  # @param [String] - token
+  # @return [Hash] - payload
   def decode_token(token)
     # Decode the JWT token without verifying its signature to obtain the kid
     decoded_payload = JWT.decode(
@@ -94,8 +96,8 @@ class ApplicationController < ActionController::API
     )
   end
 
-  ## Fetch Google's public keys for verifying Firebase Authentication JWT tokens
-  ## @return [Hash] - public keys
+  # Fetch Google's public keys for verifying Firebase Authentication JWT tokens
+  # @return [Hash] - public keys
   def fetch_google_public_keys
     uri = URI('https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com')
     response = Net::HTTP.get(uri)

@@ -9,16 +9,16 @@ module Api
     class TagsController < ApplicationController
       before_action :authenticate_user!
 
-      ## GET /api/v1/tags
-      ## Get all tags of the current user
+      # GET /api/v1/tags
+      # Get all tags of the current user
       def index
         tags = current_user.tags.order(id: :desc)
 
         render json: TagSerializer.new(tags).serializable_hash, status: :ok
       end
 
-      ## GET /api/v1/tags/:id
-      ## Get a tag of the current user
+      # GET /api/v1/tags/:id
+      # Get a tag of the current user
       def show
         param!(:id, Integer, required: true)
 
@@ -27,8 +27,8 @@ module Api
         render json: TagSerializer.new(tag).serializable_hash, status: :ok
       end
 
-      ## PUT /api/v1/tags/:id
-      ## Update a tag of the current user
+      # PUT /api/v1/tags/:id
+      # Update a tag of the current user
       def update
         param!(:id, Integer, required: true)
         param!(:name, String, required: true)
@@ -45,8 +45,8 @@ module Api
         render json: TagSerializer.new(tag).serializable_hash, status: :ok
       end
 
-      ## DELETE /api/v1/tags/:id
-      ## Delete a tag of the current user
+      # DELETE /api/v1/tags/:id
+      # Delete a tag of the current user
       def destroy
         param!(:id, Integer, required: true)
 
