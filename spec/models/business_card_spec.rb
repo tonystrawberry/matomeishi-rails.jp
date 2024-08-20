@@ -37,6 +37,7 @@
 #
 require 'rails_helper'
 require 'google/cloud/vision/v1'
+require 'ostruct'
 
 RSpec.describe BusinessCard do
   describe 'validations' do
