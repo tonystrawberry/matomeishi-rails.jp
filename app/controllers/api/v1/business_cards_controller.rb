@@ -55,18 +55,22 @@ module Api
       # POST /api/v1/business_cards
       # Create a business card for the current user
       def create
-        param!(:front_image, ActionDispatch::Http::UploadedFile, required: true)
-        param!(:back_image, ActionDispatch::Http::UploadedFile)
+        param!(:business_card, Hash, required: true) do |business_card|
+          business_card.param!(:front_image, ActionDispatch::Http::UploadedFile, required: true)
+          business_card.param!(:back_image, ActionDispatch::Http::UploadedFile)
+        end
         param!(:language_hints, String, default: '["en"]') # Default language hints is English
 
         language_hints = JSON.parse(params[:language_hints])
 
-        business_card = BusinessCard.initialize_for(
-          user: current_user,
-          language_hints: language_hints,
-          front_image: params[:front_image],
-          back_image: params[:back_image]
-        )
+        business_card = current_user.business_cards.new(status: :analyzing)
+
+        ActiveRecord::Base.transaction do
+          business_card.save!
+          business_card.attach_images(front_image: business_card_create_params[:front_image], back_image: business_card_create_params[:back_image])
+        end
+
+        business_card.analyze!(language_hints: language_hints)
 
         render json: BusinessCardSerializer.new(business_card).serializable_hash, status: :created
       end
@@ -74,44 +78,32 @@ module Api
       # PUT /api/v1/business_cards/:code
       # Update a business card of the current user
       def update
-        param!(:address, String)
-        param!(:company, String)
-        param!(:department, String)
-        param!(:email, String)
-        param!(:fax, String)
-        param!(:first_name, String, required: true)
-        param!(:first_name_phonetic, String)
-        param!(:home_phone, String)
-        param!(:job_title, String)
-        param!(:last_name, String)
-        param!(:last_name_phonetic, String)
-        param!(:meeting_date, DateTime)
-        param!(:mobile_phone, String)
-        param!(:notes, String)
-        param!(:tags, Array)
-        param!(:website, String)
+        param!(:code, String, required: true)
+        param!(:business_card, Hash, required: true) do |business_card|
+          business_card.param!(:address, String)
+          business_card.param!(:company, String)
+          business_card.param!(:department, String)
+          business_card.param!(:email, String)
+          business_card.param!(:fax, String)
+          business_card.param!(:first_name, String, required: true)
+          business_card.param!(:first_name_phonetic, String)
+          business_card.param!(:home_phone, String)
+          business_card.param!(:job_title, String)
+          business_card.param!(:last_name, String)
+          business_card.param!(:last_name_phonetic, String)
+          business_card.param!(:meeting_date, DateTime)
+          business_card.param!(:mobile_phone, String)
+          business_card.param!(:notes, String)
+          business_card.param!(:business_card_tags_attributes, Array)
+          business_card.param!(:website, String)
+        end
 
         business_card = current_user.business_cards.find_by!(code: params[:code])
 
-        attributes = {
-          address: params[:address],
-          company: params[:company],
-          department: params[:department],
-          email: params[:email],
-          fax: params[:fax],
-          first_name: params[:first_name],
-          first_name_phonetic: params[:first_name_phonetic],
-          home_phone: params[:home_phone],
-          job_title: params[:job_title],
-          last_name: params[:last_name],
-          last_name_phonetic: params[:last_name_phonetic],
-          meeting_date: params[:meeting_date],
-          mobile_phone: params[:mobile_phone],
-          notes: params[:notes],
-          website: params[:website]
-        }
-
-        business_card.update_by!(attributes: attributes, tags: params[:tags])
+        ActiveRecord::Base.transaction do
+          business_card.business_card_tags.destroy_all
+          business_card.update!(business_card_update_params)
+        end
 
         render json: BusinessCardSerializer.new(business_card).serializable_hash, status: :ok
       end
@@ -134,6 +126,45 @@ module Api
         csv_data = BusinessCard.to_csv(user: current_user)
 
         send_data(csv_data, type: 'text/csv', filename: "business-cards-#{current_user.id}-#{Time.now.to_i}.csv")
+      end
+
+      private
+
+      # Used in #create
+      # Returns the permitted parameters for creating a business card
+      # @return [ActionController::Parameters]
+      def business_card_create_params
+        params.require(:business_card).permit(:front_image, :back_image)
+      end
+
+      # Used in #update
+      # Returns the permitted parameters for creating or updating a business card
+      # @return [ActionController::Parameters]
+      def business_card_update_params
+        permitted_params = params.require(:business_card).permit(
+          :address,
+          :company,
+          :department,
+          :email,
+          :fax,
+          :first_name,
+          :first_name_phonetic,
+          :home_phone,
+          :job_title,
+          :last_name,
+          :last_name_phonetic,
+          :meeting_date,
+          :mobile_phone,
+          :notes,
+          :website,
+          business_card_tags_attributes: [:_destroy, { tag_attributes: %i[id name] }]
+        )
+
+        permitted_params[:business_card_tags_attributes].each do |business_card_tag|
+          business_card_tag[:tag_attributes][:user] = current_user
+        end
+
+        permitted_params
       end
     end
   end

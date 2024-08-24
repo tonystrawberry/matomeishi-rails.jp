@@ -34,4 +34,14 @@ class Tag < ApplicationRecord
 
   has_many :business_card_tags, dependent: :destroy
   has_many :business_cards, through: :business_card_tags
+
+  after_validation :set_default_color
+
+  private
+
+  # Called on :after_validation
+  # Set default color to black if not provided
+  def set_default_color
+    self.color ||= '#000000'
+  end
 end

@@ -23,4 +23,10 @@
 class BusinessCardTag < ApplicationRecord
   belongs_to :business_card
   belongs_to :tag, counter_cache: :business_cards_count
+
+  accepts_nested_attributes_for :tag, allow_destroy: false
+
+  def tag_attributes=(attributes)
+    self.tag = Tag.find_or_create_by(attributes)
+  end
 end

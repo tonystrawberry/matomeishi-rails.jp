@@ -66,6 +66,14 @@ class BusinessCard < ApplicationRecord
   has_many :business_card_tags, dependent: :destroy
   has_many :tags, through: :business_card_tags
 
+  accepts_nested_attributes_for :business_card_tags, allow_destroy: true, reject_if: :all_blank
+
+  def business_card_tags_attributes=(attributes)
+    attributes.each do |attribute|
+      business_card_tags.build(attribute)
+    end
+  end
+
   enum status: {
     analyzing: 0,
     analyzed: 1,
@@ -139,41 +147,29 @@ class BusinessCard < ApplicationRecord
     business_cards.distinct.order(id: :desc).page(page).per(12)
   end
 
-  # Initialize a business card for the provided user
-  # @param user [User] the user for which to initialize the business card
-  # @param language_hints [Array<String>] the language hints for the OCR API
-  # @param front_image [ActionDispatch::Http::UploadedFile] the front image of the business card
-  # @param back_image [ActionDispatch::Http::UploadedFile] the back image of the business card
-  # @return [BusinessCard] the initialized business card
-  def self.initialize_for(user:, language_hints: ['en'], front_image: nil, back_image: nil)
-    business_card = user.business_cards.new
-
-    ActiveRecord::Base.transaction do
-      business_card.save!
-
-      if front_image.present?
-        business_card.front_image.attach(
-          key: "#{user.id}/#{business_card.id}-front-image",
-          io: front_image.tempfile,
-          filename: "#{business_card.id}-front-image.png",
-          content_type: 'image/png',
-          identify: false
-        )
-      end
-
-      if back_image.present?
-        business_card.back_image.attach(
-          key: "#{user.id}/#{business_card.id}-back-image",
-          io: back_image.tempfile,
-          filename: "#{business_card.id}-back-image.png",
-          content_type: 'image/png',
-          identify: false
-        )
-      end
+  # Attach the provided images to the business card
+  # @param front_image [ActionDispatch::Http::UploadedFile] the front image
+  # @param back_image [ActionDispatch::Http::UploadedFile] the back image
+  def attach_images(front_image:, back_image:)
+    if front_image.present?
+      self.front_image.attach(
+        key: "#{user.id}/#{id}-front-image",
+        io: front_image.tempfile,
+        filename: "#{id}-front-image.png",
+        content_type: 'image/png',
+        identify: false
+      )
     end
 
-    business_card.analyze!(language_hints: language_hints)
-    business_card.reload
+    if back_image.present?
+      self.back_image.attach(
+        key: "#{user.id}/#{id}-back-image",
+        io: back_image.tempfile,
+        filename: "#{id}-back-image.png",
+        content_type: 'image/png',
+        identify: false
+      )
+    end
   end
 
   # Get the CSV file content for the business cards of the provided user
@@ -215,80 +211,13 @@ class BusinessCard < ApplicationRecord
   ## Instance Methods ##
   ######################
 
-  # Analyze the business card
-  # Calls OCR API to analyze the business card (front and back images)
-  # Get the text from the images
-  # Submit the text to the ChatGPT API to get the entities in a JSON format
-  # Save the entities in the database # | TODO: export the logic to a service or implement a OpenAI API client wrapper
+  # Analyze the business card and save the analyzed data
   # @param language_hints [Array<String>] the language hints for the OCR API
   def analyze!(language_hints: ['en'])
-    image_annotator = Google::Cloud::Vision.image_annotator(version: :v1, transport: :grpc)
-
-    images = [front_image.url]
-    images << back_image.url if back_image.attached?
-
-    response = image_annotator.text_detection(images: images,
-                                              image_context: { 'language_hints' => language_hints })
-
-    # Get the raw text from the response
-    text_to_analyze = ''
-
-    response.responses.each_with_index do |res, index|
-      text_to_analyze += "Front Business Card Text >> \n #{res.full_text_annotation&.text}\n\n" if index.zero?
-      text_to_analyze += "Back Business Card Text >> \n #{res.full_text_annotation&.text}\n\n" if index == 1
-    end
-
-    Rails.logger.info "BusinessCard#analyze! | Text to Analyze:\n #{text_to_analyze}"
-
-    retries = 0
-
-    begin
-      # Pass to ChatGPT API
-      client = OpenAI::Client.new
-
-      response = client.chat(
-        parameters: {
-          model: 'gpt-3.5-turbo',
-          messages: [{ role: 'user', content: "
-            Return me the JSON containing the entities from the business card text below.
-            The JSON file should contain the following keys:
-            - first_name
-            - last_name
-            - first_name_phonetic
-            - last_name_phonetic
-            - company
-            - job_title
-            - department
-            - website
-            - address
-            - email
-            - mobile_phone
-            - home_phone
-            - fax
-            If the key does not seem to be present, please return null as the value.
-
-            #{text_to_analyze}
-          " }],
-          temperature: 0.7
-        }
-      )
-
-      openai_json = JSON.parse(response.dig('choices', 0, 'message', 'content'))
-    rescue JSON::ParserError => e
-      Rails.logger.error "BusinessCard#analyze! | #{e.message}\n #{e.backtrace.join("\n")}"
-
-      # Retry at most 3 times
-      if retries < 3
-        retries += 1
-        retry
-      else
-        self.status = :failed
-        save!
-        return
-      end
-    end
+    openai_json = BusinessCardAnalyzer.new(business_card: self, language_hints: language_hints).analyze
 
     self.status = :analyzed
+
     self.first_name = openai_json['first_name']
     self.last_name = openai_json['last_name']
     self.first_name_phonetic = openai_json['first_name_phonetic']
@@ -304,31 +233,9 @@ class BusinessCard < ApplicationRecord
     self.fax = openai_json['fax']
 
     save!
-  end
-
-  # Update the business card with the provided attributes and tags
-  # @param attributes [Hash] the attributes to update
-  # @param tags [Array<Hash>] the tags to update
-  # @option tags [Integer] :tagId the tag ID (if the tag already exists)
-  # @option tags [String] :name the tag name (if the tag does not exist)
-  def update_by!(attributes:, tags:)
-    ActiveRecord::Base.transaction do
-      update!(attributes: attributes)
-
-      # Delete all tags of the business card before adding new tags
-      business_card_tags.destroy_all
-
-      tags.each do |tag|
-        if tag[:tagId].present?
-          business_card_tags.create!(tag_id: tag[:tagId])
-        else
-          tag = user.tags.create!(name: tag[:name], color: '#000000', description: '')
-          business_card_tags.create!(tag: tag)
-        end
-      end
-
-      save!
-    end
+  rescue BusinessCardAnalyzer::AnalysisFailed
+    self.status = :failed
+    save!
   end
 
   private
