@@ -202,7 +202,7 @@ RSpec.describe 'Api::V1::BusinessCards' do
   describe 'POST /create (def create)' do
     before do
       # Mock the `analyze!` method of `BusinessCard` model
-      allow_any_instance_of(BusinessCard).to receive(:analyze!).and_return(true)
+      allow_any_instance_of(BusinessCards::AnalyzeBusinessCard).to receive(:analyze).and_return({})
 
       # Mock the `url` and `attach` methods of the `front_image` attribute of `BusinessCard` model
       image = double
@@ -214,8 +214,10 @@ RSpec.describe 'Api::V1::BusinessCards' do
 
     it 'creates a business card for the current user' do
       post api_v1_create_business_card_path, params: {
-        front_image: fixture_file_upload('business-card.jpg', 'image/jpg'),
-        back_image: fixture_file_upload('business-card.jpg', 'image/jpg'),
+        business_card: {
+          front_image: fixture_file_upload('business-card.jpg', 'image/jpg'),
+          back_image: fixture_file_upload('business-card.jpg', 'image/jpg')
+        },
         language_hints: %w[en ja fr]
       }, headers: { 'x-firebase-token' => 'token' }
 
@@ -230,49 +232,52 @@ RSpec.describe 'Api::V1::BusinessCards' do
 
     let!(:params) do
       {
-        address: Faker::Address.full_address,
-        company: Faker::Company.name,
-        department: Faker::Company.profession,
-        email: Faker::Internet.email,
-        fax: Faker::PhoneNumber.phone_number,
-        first_name: Faker::Name.first_name,
-        first_name_phonetic: Faker::Name.first_name,
-        home_phone: Faker::PhoneNumber.phone_number,
-        job_title: Faker::Company.profession,
-        last_name: Faker::Name.last_name,
-        last_name_phonetic: Faker::Name.last_name,
-        meeting_date: Time.zone.today,
-        mobile_phone: Faker::PhoneNumber.phone_number,
-        notes: Faker::Lorem.sentence,
-        tags: tags.map { |tag| { tagId: tag.id, name: tag.name } } + [{ tagId: nil, name: 'custom' }],
-        website: Faker::Internet.url
+        business_card: {
+          address: Faker::Address.full_address,
+          company: Faker::Company.name,
+          department: Faker::Company.profession,
+          email: Faker::Internet.email,
+          fax: Faker::PhoneNumber.phone_number,
+          first_name: Faker::Name.first_name,
+          first_name_phonetic: Faker::Name.first_name,
+          home_phone: Faker::PhoneNumber.phone_number,
+          job_title: Faker::Company.profession,
+          last_name: Faker::Name.last_name,
+          last_name_phonetic: Faker::Name.last_name,
+          meeting_date: Time.zone.today,
+          mobile_phone: Faker::PhoneNumber.phone_number,
+          notes: Faker::Lorem.sentence,
+          business_card_tags_attributes: tags.map { |tag| { tag_attributes: { id: tag.id, name: tag.name } } } + [{ tag_attributes: { name: 'custom' } }],
+          website: Faker::Internet.url
+
+        }
       }
     end
 
     it 'updates a business card of the current user' do
-      put api_v1_update_business_card_path(code: business_card.code), params: params.merge(code: business_card.code),
+      put api_v1_update_business_card_path(code: business_card.code), params: params,
                                                                       headers: { 'x-firebase-token' => 'token' }
 
       expect(response).to have_http_status(:ok)
 
       business_card.reload
 
-      expect(business_card.address).to eq(params[:address])
-      expect(business_card.company).to eq(params[:company])
-      expect(business_card.department).to eq(params[:department])
-      expect(business_card.email).to eq(params[:email])
-      expect(business_card.fax).to eq(params[:fax])
-      expect(business_card.first_name).to eq(params[:first_name])
-      expect(business_card.first_name_phonetic).to eq(params[:first_name_phonetic])
-      expect(business_card.home_phone).to eq(params[:home_phone])
-      expect(business_card.job_title).to eq(params[:job_title])
-      expect(business_card.last_name).to eq(params[:last_name])
-      expect(business_card.last_name_phonetic).to eq(params[:last_name_phonetic])
-      expect(business_card.meeting_date).to eq(params[:meeting_date])
-      expect(business_card.mobile_phone).to eq(params[:mobile_phone])
-      expect(business_card.notes).to eq(params[:notes])
-      expect(business_card.tags.pluck(:name).sort).to eq(params[:tags].pluck(:name).sort)
-      expect(business_card.website).to eq(params[:website])
+      expect(business_card.address).to eq(params[:business_card][:address])
+      expect(business_card.company).to eq(params[:business_card][:company])
+      expect(business_card.department).to eq(params[:business_card][:department])
+      expect(business_card.email).to eq(params[:business_card][:email])
+      expect(business_card.fax).to eq(params[:business_card][:fax])
+      expect(business_card.first_name).to eq(params[:business_card][:first_name])
+      expect(business_card.first_name_phonetic).to eq(params[:business_card][:first_name_phonetic])
+      expect(business_card.home_phone).to eq(params[:business_card][:home_phone])
+      expect(business_card.job_title).to eq(params[:business_card][:job_title])
+      expect(business_card.last_name).to eq(params[:business_card][:last_name])
+      expect(business_card.last_name_phonetic).to eq(params[:business_card][:last_name_phonetic])
+      expect(business_card.meeting_date).to eq(params[:business_card][:meeting_date])
+      expect(business_card.mobile_phone).to eq(params[:business_card][:mobile_phone])
+      expect(business_card.notes).to eq(params[:business_card][:notes])
+      expect(business_card.tags.pluck(:name).sort).to eq(params[:business_card][:business_card_tags_attributes].map { |tag| tag[:tag_attributes][:name] }.sort)
+      expect(business_card.website).to eq(params[:business_card][:website])
     end
   end
 

@@ -57,7 +57,7 @@ FactoryBot.define do
     status { BusinessCard.statuses.keys.sample }
     meeting_date { Faker::Date.between(from: 2.days.ago, to: Time.zone.today) }
 
-    trait :with_analyzing_state do
+    trait :analyzing do
       first_name { nil }
       last_name { nil }
       first_name_phonetic { nil }

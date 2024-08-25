@@ -18,7 +18,7 @@ module Api
         param!(:meeting_date_from, Date)
         param!(:meeting_date_to, Date)
 
-        business_cards = BusinessCard.list_for(
+        business_cards = BusinessCards::ListBusinessCards.call(
           user: current_user,
           page: params[:page],
           filter_parameters: {
@@ -61,16 +61,12 @@ module Api
         end
         param!(:language_hints, String, default: '["en"]') # Default language hints is English
 
-        language_hints = JSON.parse(params[:language_hints])
-
-        business_card = current_user.business_cards.new(status: :analyzing)
-
-        ActiveRecord::Base.transaction do
-          business_card.save!
-          business_card.attach_images(front_image: business_card_create_params[:front_image], back_image: business_card_create_params[:back_image])
-        end
-
-        business_card.analyze!(language_hints: language_hints)
+        business_card = BusinessCards::CreateBusinessCard.call(
+          user: current_user,
+          front_image: business_card_create_params[:front_image],
+          back_image: business_card_create_params[:back_image],
+          language_hints: JSON.parse(params[:language_hints])
+        )
 
         render json: BusinessCardSerializer.new(business_card).serializable_hash, status: :created
       end
@@ -98,12 +94,7 @@ module Api
           business_card.param!(:website, String)
         end
 
-        business_card = current_user.business_cards.find_by!(code: params[:code])
-
-        ActiveRecord::Base.transaction do
-          business_card.business_card_tags.destroy_all
-          business_card.update!(business_card_update_params)
-        end
+        business_card = BusinessCards::UpdateBusinessCard.call(user: current_user, business_card_code: params[:code], attributes: business_card_update_params)
 
         render json: BusinessCardSerializer.new(business_card).serializable_hash, status: :ok
       end
@@ -113,9 +104,7 @@ module Api
       def destroy
         param!(:code, String, required: true)
 
-        business_card = current_user.business_cards.find_by!(code: params[:code])
-
-        business_card.destroy!
+        BusinessCards::DestroyBusinessCard.call(user: current_user, business_card_code: params[:code])
 
         render status: :no_content
       end
@@ -123,7 +112,7 @@ module Api
       # GET /api/v1/business_cards/export
       # Export all business cards of the current user
       def export
-        csv_data = BusinessCard.to_csv(user: current_user)
+        csv_data = BusinessCards::ExportBusinessCardsToCsv.call(user: current_user)
 
         send_data(csv_data, type: 'text/csv', filename: "business-cards-#{current_user.id}-#{Time.now.to_i}.csv")
       end
