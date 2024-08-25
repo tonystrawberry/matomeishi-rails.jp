@@ -51,15 +51,15 @@ module BusinessCards
         )
       end
 
-      if back_image.present?
-        business_card.back_image.attach(
-          key: "#{business_card.user.id}/#{business_card.id}-back-image",
-          io: back_image.tempfile,
-          filename: "#{business_card.id}-back-image.png",
-          content_type: 'image/png',
-          identify: false
-        )
-      end
+      return if back_image.blank?
+
+      business_card.back_image.attach(
+        key: "#{business_card.user.id}/#{business_card.id}-back-image",
+        io: back_image.tempfile,
+        filename: "#{business_card.id}-back-image.png",
+        content_type: 'image/png',
+        identify: false
+      )
     end
   end
 end

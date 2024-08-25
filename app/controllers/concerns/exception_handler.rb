@@ -39,8 +39,6 @@ module ExceptionHandler
     rescue_from RailsParam::InvalidParameterError do |e|
       Rails.logger.warn("RailsParam::InvalidParameterError: #{e}.")
 
-      puts "RailsParam::InvalidParameterError: #{e}."
-
       render json: {
         errors: []
       }, status: :bad_request
