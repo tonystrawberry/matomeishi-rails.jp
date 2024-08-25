@@ -51,6 +51,8 @@ BUGSNAG_API_KEY=
 # Only for production environment because we use local database for development
 SUPABASE_DATABASE_HOST=
 SUPABASE_DATABASE_PASSWORD=
+SUPABASE_DATABASE_NAME=
+SUPABASE_DATABASE_USER=
 ```
 
 2. Put the `google-cloud-storage-credentials.json` and `google-cloud-vision-credentials.json` files in the root directory. These corresponds to the credentials for Google Cloud Storage and Google Cloud Vision API respectively.

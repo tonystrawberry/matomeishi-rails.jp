@@ -82,6 +82,6 @@ test:
 production:
   <<: *default
   host: <%= ENV["SUPABASE_DATABASE_HOST"] %>
-  database: postgres
-  username: postgres
+  database: <%= ENV["SUPABASE_DATABASE_NAME"] %>
+  username: <%= ENV["SUPABASE_DATABASE_USER"] %>
   password: <%= ENV["SUPABASE_DATABASE_PASSWORD"] %>
